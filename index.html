@@ -15,33 +15,33 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #e11d48;
-      --primary-glow: rgba(225, 29, 72, 0.3);
-      --secondary: #fb7185;
-      --bg-main: #fffafb;
+      --primary: #2563eb;
+      --primary-glow: rgba(37, 99, 235, 0.3);
+      --secondary: #60a5fa;
+      --bg-main: #f8faff;
       --card-bg: rgba(255, 255, 255, 0.8);
-      --text-main: #4c0519;
-      --text-muted: #9f1239;
-      --glass-border: rgba(225, 29, 72, 0.1);
+      --text-main: #172554;
+      --text-muted: #1e40af;
+      --glass-border: rgba(37, 99, 235, 0.1);
       --card-radius: 60px; /* Playful Rounded */
     }
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-main); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
     .bg-animation { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: var(--bg-main); }
-    .blob { position: absolute; width: 800px; height: 800px; background: radial-gradient(circle, rgba(225, 29, 72, 0.12) 0%, transparent 70%); border-radius: 50%; animation: drift 30s infinite alternate ease-in-out; }
-    .blob-2 { background: radial-gradient(circle, rgba(251, 113, 133, 0.08) 0%, transparent 70%); width: 600px; height: 600px; right: -5%; top: 5%; animation-duration: 25s; }
+    .blob { position: absolute; width: 800px; height: 800px; background: radial-gradient(circle, rgba(37, 99, 235, 0.12) 0%, transparent 70%); border-radius: 50%; animation: drift 30s infinite alternate ease-in-out; }
+    .blob-2 { background: radial-gradient(circle, rgba(96, 165, 250, 0.08) 0%, transparent 70%); width: 600px; height: 600px; right: -5%; top: 5%; animation-duration: 25s; }
     @keyframes drift { from { transform: translate(-10%, -10%) scale(1); } to { transform: translate(15%, 20%) scale(1.1); } }
     header { padding: 90px 20px 20px; text-align: center; max-width: 800px; margin: 0 auto; }
-    header h1 { font-size: clamp(3rem, 10vw, 4.2rem); font-weight: 800; opacity: 0.9; background: linear-gradient(135deg, var(--text-main) 30%, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .search-section { max-width: 500px; margin: 40px auto 30px; padding: 0 20px; position: sticky; top: 20px; z-index: 100; }
-    .search-wrapper { position: relative; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 30px; box-shadow: 0 10px 40px rgba(225, 29, 72, 0.05); }
+    header h1 { font-size: clamp(1.5rem, 5vw, 3rem); white-space: nowrap; font-weight: 800; opacity: 0.9; background: linear-gradient(135deg, var(--text-main) 30%, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .search-section { max-width: 860px; margin: 40px auto 30px; padding: 0 20px; position: sticky; top: 20px; z-index: 100; }
+    .search-wrapper { position: relative; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 30px; box-shadow: 0 10px 40px rgba(37, 99, 235, 0.05); }
     .search-wrapper input { width: 100%; background: transparent; border: none; padding: 18px 25px 18px 60px; color: var(--text-main); font-size: 1rem; font-weight: 600; outline: none; }
     .search-wrapper::before { content: '🌸'; position: absolute; left: 24px; top: 50%; transform: translateY(-50%); font-size: 1.2rem; }
     main { flex: 1; width: 100%; max-width: 1800px; margin: 0 auto; padding: 20px 40px 100px; }
     #appContainer { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 40px; }
-    .app-card { background: var(--card-bg); backdrop-filter: blur(20px); border: 2px solid var(--glass-border); border-radius: var(--card-radius); padding: 50px 40px; display: flex; flex-direction: column; transition: all 0.6s cubic-bezier(0.19, 1, 0.22, 1); opacity: 0; transform: rotate(1deg) translateY(50px); animation: reveal 0.8s forwards; box-shadow: 0 15px 45px rgba(225, 29, 72, 0.06); }
-    .app-card:hover { transform: rotate(0deg) translateY(-15px); background: #ffffff; border-color: var(--primary); box-shadow: 0 45px 85px -20px rgba(225, 29, 72, 0.15), 0 0 25px var(--primary-glow); }
-    .app-icon-box { width: 120px; height: 120px; margin: 0 auto 35px; border-radius: 50%; padding: 10px; background: #fff1f2; box-shadow: 0 10px 25px rgba(225, 29, 72, 0.1); display: flex; align-items: center; justify-content: center; }
+    .app-card { background: var(--card-bg); backdrop-filter: blur(20px); border: 2px solid var(--glass-border); border-radius: var(--card-radius); padding: 50px 40px; display: flex; flex-direction: column; transition: all 0.6s cubic-bezier(0.19, 1, 0.22, 1); opacity: 0; transform: rotate(1deg) translateY(50px); animation: reveal 0.8s forwards; box-shadow: 0 15px 45px rgba(37, 99, 235, 0.06); }
+    .app-card:hover { transform: rotate(0deg) translateY(-15px); background: #ffffff; border-color: var(--primary); box-shadow: 0 45px 85px -20px rgba(37, 99, 235, 0.15), 0 0 25px var(--primary-glow); }
+    .app-icon-box { width: 120px; height: 120px; margin: 0 auto 35px; border-radius: 50%; padding: 10px; background: #eff4ff; box-shadow: 0 10px 25px rgba(37, 99, 235, 0.1); display: flex; align-items: center; justify-content: center; }
     .app-icon { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
     .badge { font-size: 0.8rem; font-weight: 800; padding: 7px 18px; border-radius: 20px; text-transform: uppercase; }
     .badge.android { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
@@ -100,6 +100,8 @@
     /* STORE_META_INJECTED */
     .store-meta{margin-top:10px;text-align:center;font-size:.78rem;font-weight:600;color:#64748b;letter-spacing:.02em}
     .store-meta .icon{margin-right:4px}
+    .store-ver{display:inline-flex;align-items:center;gap:4px;font-weight:800;color:var(--primary);margin-right:10px}
+    .store-ver i,.store-ver svg{width:11px;height:11px;stroke-width:2.4;flex-shrink:0}
   </style>
     <style>/* AAB_BTNFIX4 (icon+text centered together) */
     .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;position:relative}
@@ -321,7 +323,7 @@
       const cats = [...new Set(allApps.map(a => a.category).filter(Boolean))].sort();
       if (!cats.length) { host.innerHTML = ""; return; }
       const chip = (label, val, cnt) => `<button type="button" class="cat-chip${selectedCategory===val?' active':''}" onclick="selectCategory(this.dataset.cat)" data-cat="${val.replace(/"/g,'&quot;')}">${label}${cnt!=null?` <span class="cnt">${cnt}</span>`:''}</button>`;
-      host.innerHTML = chip("Tất cả", "", allApps.filter(a=>a.category).length) + cats.map(c => chip(c, c, allApps.filter(a=>a.category===c).length)).join("");
+      host.innerHTML = chip("Tất cả", "", allApps.length) + cats.map(c => chip(c, c, allApps.filter(a=>a.category===c).length)).join("");
     };
     const selectCategory = (val) => { selectedCategory = val; buildCategoryChips(); filterApps(); };
     const formatUrl = (url, isIOS) => url && isIOS ? "itms-services://?action=download-manifest&url=" + encodeURIComponent(url) : url;
@@ -349,8 +351,8 @@
         card.innerHTML = `<div class="app-icon-box"><img src="${app.icon || 'https://via.placeholder.com/150'}" class="app-icon" alt="${app.name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(app.name)}&background=059669&color=fff'"></div>
           <div class="badge-row"><span class="badge ${isIOS ? 'ios' : 'android'}"><i data-lucide="${isIOS ? 'apple' : 'smartphone'}" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>${app.platform || 'Android'}</span>${app.category ? `<span class="pill-category cat-src-${app.category_source||'store'}" title="Nguồn category: ${app.category_source==='override'?'Override tay':app.category_source==='ai'?'AI phân loại':app.category_source==='gitlab'?'Fallback subgroup':'Store category'}"><i data-lucide="tag"></i>${app.category}</span>` : ''}<span class="prod-ads-badge" data-prod-ads="loading" style="display:none"></span><span class="health-badge" data-health="loading" style="display:none"></span></div>
           <h2 class="app-title">${app.name}</h2><p class="app-desc">${app.description || ''}</p>
-          <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev"><i class="btn-ic" data-lucide="wrench"></i>${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live"><i class="btn-ic" data-lucide="rocket"></i>${stack('Live Build','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full"><i class="btn-ic" data-lucide="package"></i>${stack('Download AAB','aab')}</a>` : ""} ${storeUrl ? `<a href="${storeUrl}" target="_blank" rel="noopener" class="btn btn-store"><i class="btn-ic" data-lucide="shopping-bag"></i><span class="btn-stack">View on Store</span></a>` : ""}
-          <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')"><i class="btn-ic" data-lucide="hammer"></i><span class="btn-stack">${buildLabel}</span></button>${noAdsTrigger}${noAdsDl}<button type="button" class="btn btn-gd" onclick="openViewDesc('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="file-text"></i><span class="btn-stack">Description</span></button><button type="button" class="btn btn-as" onclick="dlAssets('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)"><i class="btn-ic" data-lucide="download"></i><span class="btn-stack">Assets</span></button><button type="button" class="btn btn-ba" onclick="genBaDocs('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)"><i class="btn-ic" data-lucide="clipboard-list"></i><span class="btn-stack">BA + Tests</span></button><button type="button" class="btn btn-ss" onclick="openShots('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="image"></i><span class="btn-stack">Screenshots</span></button><button type="button" class="btn btn-fl" onclick="openFlow('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="git-branch"></i><span class="btn-stack">View Flow</span></button><button type="button" class="btn btn-cfg" onclick="openConfig('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="settings-2"></i><span class="btn-stack">Kiểm tra cấu hình</span></button></div>${app.storeUpdated ? `<div class="store-meta"><span class="icon">📅</span>Updated on ${app.storeUpdated}</div>` : ""}`;
+          <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev"><i class="btn-ic" data-lucide="wrench"></i>${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live"><i class="btn-ic" data-lucide="rocket"></i>${stack('Live Build','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full"><i class="btn-ic" data-lucide="package"></i>${stack('Download AAB','aab')}</a>` : ""} ${storeUrl ? `<a href="${storeUrl}" target="_blank" rel="noopener" class="btn btn-store"><i class="btn-ic" data-lucide="shopping-bag"></i><span class="btn-stack">View on Store${app.store_version ? `<span class="ver" data-store-ver>${app.store_version}</span>` : `<span class="ver" data-store-ver style="display:none"></span>`}</span></a>` : ""}
+          <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')"><i class="btn-ic" data-lucide="hammer"></i><span class="btn-stack">${buildLabel}</span></button>${noAdsTrigger}${noAdsDl}<button type="button" class="btn btn-gd" onclick="openViewDesc('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="file-text"></i><span class="btn-stack">Description</span></button><button type="button" class="btn btn-as" onclick="dlAssets('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)"><i class="btn-ic" data-lucide="download"></i><span class="btn-stack">Assets</span></button><button type="button" class="btn btn-ba" onclick="genBaDocs('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)"><i class="btn-ic" data-lucide="clipboard-list"></i><span class="btn-stack">BA + Tests</span></button><button type="button" class="btn btn-ss" onclick="openShots('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="image"></i><span class="btn-stack">Screenshots</span></button><button type="button" class="btn btn-fl" onclick="openFlow('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="git-branch"></i><span class="btn-stack">View Flow</span></button><button type="button" class="btn btn-cfg" onclick="openConfig('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="settings-2"></i><span class="btn-stack">Kiểm tra cấu hình</span></button></div><div class="store-meta">${app.storeUpdated ? `<span class="store-upd"><span class="icon">📅</span>Updated on ${app.storeUpdated}</span>` : ""}</div>`;
         container.appendChild(card);
       });
     };
@@ -373,7 +375,7 @@
       fetch("versions.json").then(r => r.ok ? r.json() : {apps:{}}).catch(()=>({apps:{}}))
     ]).then(([data, v]) => {
       window.__sv = (v && v.apps) || {};
-      allApps = (data.apps || []).map(a => ({...a, storeUpdated: (window.__sv||{})[a.id]?.updated_on || null})); allApps.sort((a,b) => (b.store ? 1 : 0) - (a.store ? 1 : 0)); buildCategoryChips(); renderApps(allApps); window.lucide && lucide.createIcons(); runHealthCheck(); enrichCardDescriptions(); window.lucide && lucide.createIcons(); autoOpenFromUrl();
+      allApps = (data.apps || []).map(a => ({...a, storeUpdated: a.store_updated || (window.__sv||{})[a.id]?.updated_on || null})); allApps.sort((a,b) => (b.store ? 1 : 0) - (a.store ? 1 : 0)); buildCategoryChips(); renderApps(allApps); window.lucide && lucide.createIcons(); runHealthCheck(); enrichCardDescriptions(); window.lucide && lucide.createIcons(); autoOpenFromUrl();
     }).catch(err => { document.getElementById("appContainer").innerHTML = '<div style="color: #ef4444; font-weight: 800; text-align: center; grid-column: 1/-1;">❌ Connection error. Please try again later.</div>'; });
 
     // Deep-link: ?app=<slug>&open=desc|ba|ss — auto mở popup khi notify Discord
@@ -431,6 +433,12 @@
         const bidMatch = storeUrl.match(/[?&]id=([\w.\-]+)/);
         const bid = bidMatch ? bidMatch[1].toLowerCase() : null;
         const info = bid ? storeMap[bid] : null;
+        // Store version trong nút View on Store — refresh từ play_version (live)
+        const svEl = card.querySelector('[data-store-ver]');
+        if(svEl && info && info.play_version){
+          svEl.textContent = info.play_version;
+          svEl.style.display = '';
+        }
         const badge = card.querySelector('.prod-ads-badge');
         if(!badge) return;
 
