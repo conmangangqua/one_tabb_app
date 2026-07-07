@@ -1,25 +1,3 @@
 {
-  "apps": [
-    {
-      "id": "dreamatic",
-      "name": "Dreamatic",
-      "icon": "https://github.com/conmangangqua/one_tabb_app/releases/download/prod/dreamatic_icon.png",
-      "platform": "Android",
-      "description": "",
-      "features": [],
-      "downloads": {
-        "dev": "https://github.com/conmangangqua/one_tabb_app/releases/download/dev/dreamatic_dev.apk",
-        "prod": "https://github.com/conmangangqua/one_tabb_app/releases/download/prod/dreamatic_prod.apk"
-      },
-      "versions": {
-        "dev": "1.0.0+26070701",
-        "prod": "1.0.0+26070701"
-      },
-      "store": "",
-      "category": "Entertainment",
-      "category_source": "store",
-      "store_updated": null,
-      "store_version": null
-    }
-  ]
+  "apps": []
 }
