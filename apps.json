@@ -3,7 +3,7 @@
     {
       "id": "dreamatic",
       "name": "Dreamatic",
-      "icon": "https://github.com/conmangangqua/one_tabb_app/releases/download/prod/dreamatic_icon.png",
+      "icon": "https://github.com/conmangangqua/one_tabb_app/releases/download/dev/dreamatic_icon.png",
       "platform": "Android",
       "description": "",
       "features": [],
@@ -12,7 +12,7 @@
         "prod": "https://github.com/conmangangqua/one_tabb_app/releases/download/prod/dreamatic_prod.apk"
       },
       "versions": {
-        "dev": "1.0.0+1",
+        "dev": "1.0.0+26070701",
         "prod": "1.0.0+1"
       },
       "store": "",
