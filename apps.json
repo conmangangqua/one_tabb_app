@@ -17,10 +17,10 @@
         "prod": "1.0.0+26070701",
         "aab": "1.0.0+26070701"
       },
-      "store": "",
+      "store": "https://play.google.com/store/apps/details?id=com.tranquiltmt.dreamatic",
       "category": "Entertainment",
       "category_source": "store",
-      "store_updated": null,
+      "store_updated": "Jul 7, 2026",
       "store_version": null
     }
   ]
