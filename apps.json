@@ -2,7 +2,7 @@
   "apps": [
     {
       "id": "dreamatic",
-      "name": "Dreamatic",
+      "name": "Dreamatic: Short Dramas",
       "icon": "https://github.com/conmangangqua/one_tabb_app/releases/download/prod/dreamatic_icon.png",
       "platform": "Android",
       "description": "",
