@@ -2036,13 +2036,15 @@
       body.innerHTML = '<div class="cfg-spin"></div>';
       try {
         var ep = tab==="config" ? "/api/configcheck" : tab==="rc" ? "/api/rccheck" : "/api/sdkcheck";
-        var r = await fetch(CFG_API + ep + "?app_ids=" + encodeURIComponent(cfgAppId), { cache:"no-store" });
+        var r = await fetch(CFG_API + ep + "?app_ids=" + encodeURIComponent(cfgAppId), { cache:"no-store", signal: AbortSignal.timeout(25000) });
         var d = await r.json();
         var res = (d.results||{})[cfgAppId];
         cfgCache[tab] = res;
         render(tab, res);
       } catch(e){
-        body.innerHTML = '<div class="cfg-empty"><h3>Lỗi</h3><p>'+esc(e.message||e)+'</p></div>';
+        var to = (e && (e.name==="TimeoutError"||e.name==="AbortError"));
+        var msg = to ? "GitLab đang nghẽn (rate-limit). Chờ chút rồi bấm lại tab." : (e.message||e);
+        body.innerHTML = '<div class="cfg-empty"><h3>'+(to?"Quá lâu":"Lỗi")+'</h3><p>'+esc(msg)+'</p><button type="button" class="cfg-retry" onclick="loadTab(cfgTab)" style="margin-top:12px;padding:9px 18px;border:none;border-radius:10px;background:#0ea5a4;color:#fff;font-weight:700;cursor:pointer">Thử lại</button></div>';
       }
     }
 
