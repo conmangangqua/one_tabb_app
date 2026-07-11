@@ -2036,7 +2036,7 @@
       body.innerHTML = '<div class="cfg-spin"></div>';
       try {
         var ep = tab==="config" ? "/api/configcheck" : tab==="rc" ? "/api/rccheck" : "/api/sdkcheck";
-        var r = await fetch(CFG_API + ep + "?app_ids=" + encodeURIComponent(cfgAppId), { cache:"no-store", signal: AbortSignal.timeout(25000) });
+        var r = await fetch(CFG_API + ep + "?app_ids=" + encodeURIComponent(cfgAppId), { cache:"no-store", signal: AbortSignal.timeout(40000) });
         var d = await r.json();
         var res = (d.results||{})[cfgAppId];
         cfgCache[tab] = res;
