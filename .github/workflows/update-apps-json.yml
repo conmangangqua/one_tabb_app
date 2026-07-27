@@ -503,6 +503,16 @@ jobs:
           print(json.dumps(result, indent=2))
           PYTHON_SCRIPT
 
+
+      # ===================== LOCALIZE ICONS =====================
+      # Icon release ~900KB/app; hub 30+ app => ~30MB mỗi lần mở trang.
+      # Bước này resize về webp ~3KB phục vụ same-origin. PHẢI nằm SAU bước build
+      # apps.json (bước đó gán icon = URL github) nếu không sẽ bị ghi đè.
+      - name: Localize app icons (webp same-origin)
+        run: |
+          sudo apt-get install -y webp
+          python3 scripts/localize_icons.py .
+
       # ===================== COMMIT & PUSH =====================
       - name: Commit and push changes
         run: |
@@ -512,7 +522,7 @@ jobs:
           echo "Git status before add:"
           git status
           
-          git add apps.json
+          git add apps.json icons scripts/localize_icons.py
 
           echo "Git status after add:"
           git status
