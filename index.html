@@ -1006,7 +1006,7 @@
     #vdMd input{width:100%;box-sizing:border-box;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:.95rem;font-weight:600;outline:none;margin-top:16px}
     #vdMd input:focus{border-color:#7c3aed}
     #vdMsg{min-height:18px;margin-top:8px;font-size:.8rem;font-weight:600;text-align:center;color:#ef4444}
-    #vdAct{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+    #vdAct{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}#vdAct>button{flex:1 1 0;min-width:150px;order:1}#vdAct .vd-close{flex:0 0 auto;min-width:96px;order:9}
     #vdAct button{padding:12px;border:none;border-radius:12px;font-weight:700;cursor:pointer;font-family:inherit}
     .vd-close{background:#f1f5f9;color:#475569}
     .vd-gen{background:#7c3aed;color:#fff}
@@ -1023,8 +1023,8 @@
     <div id="vdMsg"></div>
     <div id="vdAct">
       <button type="button" class="vd-close" onclick="vdClose()">Đóng</button>
-      <button type="button" class="vd-gen" id="vdGenBtn" onclick="vdGen()"><i data-lucide="refresh-cw" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>Nhắc bot gen Description</button>
-      <button type="button" id="vdGenLegalBtn" onclick="vdGenLegal()" style="display:none;grid-column:span 2;padding:12px;border:1.5px solid #fecaca;border-radius:12px;font-weight:700;cursor:pointer;background:#fef2f2;color:#dc2626;font-family:inherit"><i data-lucide="refresh-cw" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>Nhắc bot gen Privacy/Terms</button>
+      <button type="button" class="vd-gen" id="vdGenBtn" onclick="vdGen()"><i data-lucide="bell" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>Nhắc bot gen Description</button>
+      <button type="button" id="vdGenLegalBtn" onclick="vdGenLegal()" style="padding:12px;border:1.5px solid #ddd6fe;border-radius:12px;font-weight:700;cursor:pointer;background:#f5f3ff;color:#7c3aed;font-family:inherit"><i data-lucide="bell" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>Nhắc bot gen Privacy/Terms</button>
     </div>
   </div></div>
   <div id="rnOv" style="display:none"><div id="rnMd">
@@ -1178,8 +1178,8 @@
       var btn=document.getElementById("vdGenLegalBtn");
       if(!btn) return;
       if(true){
-        btn.style.display="block";
-        btn.innerHTML='<i data-lucide="refresh-cw" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>Nhắc bot gen Privacy/Terms'; window.lucide && lucide.createIcons();
+        btn.style.display="";
+        btn.innerHTML='<i data-lucide="bell" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>Nhắc bot gen Privacy/Terms'; window.lucide && lucide.createIcons();
       } else {
         btn.style.display="none";
       }
