@@ -1329,32 +1329,16 @@
     }
     window.vdGen=async function(){
       var v=(pin.value||"").trim();
-      if(!v){ msg.style.color="#ef4444"; msg.textContent="Nhập PIN để Gen lại."; return; }
-      gb.disabled=true;
-      // 1) Ưu tiên Claude daemon; CHỈ fallback khi daemon down (resolve/network fail)
-      var tunnel=null;
-      try{ tunnel=await resolveGenDesc(); }catch(_){ tunnel=null; }
-      if(tunnel){
-        msg.style.color="#64748b"; msg.textContent="⏳ Đang gen (~8-12 phút, Claude Sonnet 4.6)…";
-        var reached=false;
-        try{
-          var r=await fetch(tunnel+"/gendesc",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({slug:appId,pin:v})});
-          reached=true;
-          var d=await r.json();
-          if(!r.ok||!d.ok) throw new Error((d&&d.error)||"Thất bại");
-          msg.style.color="#059669"; msg.textContent="✅ Gen OK ("+(d.duration_sec||0)+"s)";
-          openViewDesc(appId, appEl.textContent); gb.disabled=false; return;
-        }catch(e){
-          if(reached){ msg.style.color="#ef4444"; msg.textContent="❌ "+e.message; gb.disabled=false; return; }
-          // chưa reached → daemon down → rơi xuống fallback
-        }
-      }
-      // Sếp 2026-07-10: KHÔNG auto-fallback Groq/Gemini — nó hay BỊA tính năng không có → app bị
-      // Google SUSPEND (Tommy: 2 app đã bay vì gen Gemini). Web CHỈ gen bằng Claude daemon (chất
-      // lượng = local Tommy gen). Daemon tắt → báo lỗi để bật lại daemon, TUYỆT ĐỐI KHÔNG gen bừa.
-      msg.style.color="#ef4444";
-      msg.textContent="❌ Claude daemon đang tắt — KHÔNG gen bằng fallback (Gemini/Groq hay bịa tính năng → app dễ bị suspend). Bật lại daemon (com.tmt.gendesc) rồi thử lại, hoặc gen local.";
-      gb.disabled=false;
+      if(!v){ msg.style.color="#ef4444"; msg.textContent="Nhập PIN để nhắc bot gen."; return; }
+      gb.disabled=true; msg.style.color="#64748b"; msg.textContent="⏳ Đang gửi thông báo…";
+      try{
+        var r=await fetch(API+"/api/gendesc",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({app_id:appId,pin:v})});
+        var d=await r.json();
+        if(!r.ok||!d.ok) throw new Error(d.error||"Thất bại");
+        vdClose();
+        if(window.showSnack) showSnack("📝 "+d.message, null, false);
+      }catch(e){ msg.style.color="#ef4444"; msg.textContent="❌ "+e.message; }
+      finally{ gb.disabled=false; }
     };
     window.vdGenLegal=async function(){
       var v=(pin.value||"").trim();
@@ -2365,12 +2349,12 @@
     var pinEl=document.getElementById("dsPin");
     var pin=pinEl?(pinEl.value||"").trim():"";
     if(!pin){ if(pinEl){pinEl.focus();pinEl.style.borderColor="#ef4444";} return; }
-    body.innerHTML='<div class="spin"></div><div class="sub" style="text-align:center">Đang kích OpenClaw bot đọc source…</div>';
+    body.innerHTML='<div class="spin"></div><div class="sub" style="text-align:center">Đang gửi thông báo…</div>';
     try{
       var r=await fetch(DS_API+"/api/gendatasafety",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({app_id:lastApp,pin:pin})});
       var d=await r.json();
-      if(!r.ok||d.error) throw new Error(d.error||"Trigger lỗi");
-      pollAi();
+      if(!r.ok||d.error||d.ok===false) throw new Error(d.error||"Trigger lỗi");
+      body.innerHTML='<div class="note" style="text-align:center">✅ '+esc(d.message||"Đã gửi thông báo + assign @Tranquil_Bot")+'</div>'+actions(true); bindActions();
     }catch(e){ body.innerHTML='<div class="note">⚠️ '+esc(e.message)+'</div>'+actions(true); bindActions(); }
   }
   function pollAi(){
