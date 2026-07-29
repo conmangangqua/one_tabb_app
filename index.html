@@ -75,7 +75,7 @@
     .btn-full { grid-column: span 2; background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
     .btn-full:hover { background: var(--primary-strong,var(--primary,#334155)); color: #fff; box-shadow: 0 10px 25px var(--primary-glow); }
 
-    .btn-stack { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; line-height: 1.1; max-width: 100%; overflow-wrap: anywhere; text-align: center; }
+    .btn-stack { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; line-height: 1.1; max-width: 100%; text-align: center; }
     .btn-stack .ver { font-size: 10px; font-weight: 600; opacity: 0.75; letter-spacing: 0; }
     footer { padding: 80px 20px; text-align: center; color: var(--text-muted); font-size: 0.95rem; font-weight: 600; border-top: 1px solid var(--glass-border); }
     @keyframes reveal { to { opacity: 1; transform: rotate(0deg) translateY(0); } }
@@ -96,14 +96,17 @@
     .badge-row { flex-wrap: wrap !important; overflow: visible !important; row-gap: 8px; }
   </style>
   <style>/* AAB_TRIGGER_INJECTED */
-    .btn-build{grid-column:span 2;background:#0f172a;color:#fff;border:1px solid #0f172a;cursor:pointer;font-family:inherit}
+    /* Sếp 2026-07-29: 2 nút build vốn để đen #0f172a + nâu #b45309, chẳng liên
+     quan primary nên nhìn lạc khỏi cả trang. Nay cùng một hệ, phân biệt bằng
+     SẮC ĐỘ: Build AAB = primary đậm, No-Ads = bản tối hơn (chữ trắng ~9:1). */
+    .btn-build{grid-column:span 2;background:var(--primary-strong,var(--primary,#334155));color:#fff;border:1px solid var(--primary-strong,var(--primary,#334155));cursor:pointer;font-family:inherit}
     /* BTN_PAIR_ROW (Sếp 2026-07-29): xếp cặp Build / Download cùng hàng.
        Chỉ bỏ span 2 khi lưới THẬT SỰ có nút no-ads đi kèm (dùng :has), để app
        không có bản no-ads vẫn giữ nút rộng cả hàng, không hở nửa hàng trống. */
     .btn-grid:has(.btn-noadsb) .btn-build{grid-column:auto}
     .btn-grid:has(.btn-noads)  .btn-full {grid-column:auto}
     /* Trình duyệt cũ không hỗ trợ :has() thì rơi về hành vi cũ (span 2) — chấp nhận được. */
-    .btn-build:hover{background:#1e293b}
+    .btn-build:hover{background:color-mix(in srgb,var(--primary-strong,var(--primary,#334155)) 80%,#000)}
     .btn-store{grid-column:span 2;background:#16a34a;color:#fff;border:1px solid #16a34a;text-decoration:none}
     .btn-store:hover{background:#15803d}
     .aab-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:99999;padding:20px}
@@ -148,7 +151,7 @@
     .btn{display:inline-flex !important;align-items:center !important;justify-content:center !important;gap:10px !important;position:relative}
     .btn-ic{position:static !important;display:inline-flex !important;flex-shrink:0;align-items:center;justify-content:center;width:18px;height:18px;line-height:1;pointer-events:none;color:currentColor;transform:none !important;left:auto !important;top:auto !important}
     .btn-ic svg{width:18px !important;height:18px !important;stroke:currentColor !important;stroke-width:2 !important;fill:none !important}
-    .btn-stack{display:inline-flex !important;flex-direction:column;align-items:center;justify-content:center;width:auto !important;min-width:0;max-width:100%;overflow-wrap:anywhere;text-align:center}
+    .btn-stack{display:inline-flex !important;flex-direction:column;align-items:center;justify-content:center;width:auto !important;min-width:0;max-width:100%;text-align:center}
     .btn-stack .ver{white-space:nowrap;font-size:10px}
     .badge-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;overflow:visible;row-gap:8px;margin-bottom:18px}
   </style>
@@ -1196,7 +1199,7 @@
             statusBadge=' <span style="font-size:.7rem;color:#ef4444;font-weight:700;background:#fef2f2;padding:2px 6px;border-radius:4px">⚠️ '+escapeHtml(st)+'</span>';
           }
         }
-        safeVal='<a href="'+safeHref+'" target="_blank" rel="noopener noreferrer" style="color:var(--primary-strong,var(--primary,#334155));font-weight:700;word-break:break-all;text-decoration:underline">'+safeHref+' ↗</a>';
+        safeVal='<a href="'+safeHref+'" target="_blank" rel="noopener noreferrer" style="color:color-mix(in srgb,var(--primary-strong,var(--primary,#334155)) 72%,#000);font-weight:700;word-break:break-all;text-decoration:underline">'+safeHref+' ↗</a>';
         dataRaw=' data-raw="'+safeHref+'"';
       } else {
         safeVal=escapeHtml(trimmedVal||"(trống)");
@@ -1472,11 +1475,11 @@
     body.aab-authed .btn-cfg{display:flex!important}
       /* NO_ADS_BUILD — nút phục vụ designer, chỉ hiện sau đăng nhập (như .btn-as) */
     /* #d97706 + chữ trắng chỉ đạt 3.19:1 (đo) → dùng bậc đậm hơn */
-  .btn-noadsb{background:#b45309;color:#fff;border:1px solid #b45309;cursor:pointer;display:none!important}
-    .btn-noadsb:hover{background:#92400e}
+  .btn-noadsb{background:color-mix(in srgb,var(--primary-strong,var(--primary,#334155)) 62%,#000);color:#fff;border:1px solid color-mix(in srgb,var(--primary-strong,var(--primary,#334155)) 62%,#000);cursor:pointer;display:none!important}
+    .btn-noadsb:hover{background:color-mix(in srgb,var(--primary-strong,var(--primary,#334155)) 50%,#000)}
     .btn-noadsb:disabled{opacity:.6;cursor:progress}
     body.aab-authed:not(.partner-authed) .btn-noadsb{display:flex!important}
-    .btn-noads{background:#fffbeb;color:#b45309;border:1px solid #fcd34d;display:none!important}
+    .btn-noads{background:color-mix(in srgb,var(--primary-strong,var(--primary,#334155)) 12%,var(--card-bg,#fff));color:color-mix(in srgb,var(--primary-strong,var(--primary,#334155)) 62%,#000);border:1px solid color-mix(in srgb,var(--primary-strong,var(--primary,#334155)) 32%,var(--card-bg,#fff));display:none!important}
     .btn-noads:hover{background:#fef3c7}
     body.aab-authed:not(.partner-authed) .btn-noads{display:flex!important}
     /* BA modal */
