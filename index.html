@@ -2332,12 +2332,13 @@
   body.aab-authed .btn-ds{display:flex!important}
   #dsMdOv{position:fixed;inset:0;background:rgba(2,6,23,.62);backdrop-filter:blur(4px);z-index:10000;display:none;align-items:center;justify-content:center;padding:18px}
   #dsMdOv.open{display:flex}
-  #dsMd{background:#fff;border-radius:22px;padding:26px 26px 22px;width:100%;max-width:860px;max-height:92vh;overflow:auto;box-shadow:0 40px 100px rgba(0,0,0,.35);font-family:system-ui,-apple-system,sans-serif;color:#0f172a}
+  /* DS_UI_TRUTH: kế thừa font + màu chữ của hub thay vì system-ui/#0f172a */
+  #dsMd{background:#fff;border-radius:22px;padding:26px 26px 22px;width:100%;max-width:860px;max-height:92vh;overflow:auto;box-shadow:0 40px 100px rgba(0,0,0,.35);font-family:inherit;color:var(--text-main,#0f172a)}
   #dsMd h3{margin:0 0 3px;font-size:1.08rem;font-weight:800;display:flex;align-items:center;gap:8px}
-  #dsMd .sub{color:#64748b;font-size:.82rem;margin:0 0 16px}
+  #dsMd .sub{color:var(--text-muted,#64748b);font-size:.82rem;margin:0 0 16px}
   #dsMd table{width:100%;border-collapse:collapse;font-size:.8rem}
-  #dsMd th,#dsMd td{text-align:left;padding:8px 10px;border-bottom:1px solid #e2e8f0;vertical-align:top}
-  #dsMd th{color:#64748b;font-weight:700;font-size:.68rem;text-transform:uppercase;letter-spacing:.03em}
+  #dsMd th,#dsMd td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--glass-border,#e2e8f0);vertical-align:top}
+  #dsMd th{color:var(--text-muted,#64748b);font-weight:700;font-size:.68rem;text-transform:uppercase;letter-spacing:.03em}
   #dsMd .bg{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.68rem;font-weight:800}
   #dsMd .yes{background:#dcfce7;color:#15803d}.no{background:#f1f5f9;color:#64748b}
   #dsMd .rev{background:#fef3c7;color:#b45309}
@@ -2345,14 +2346,14 @@
   #dsMd .note{background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:11px 13px;font-size:.78rem;color:#92400e;margin-top:16px}
   #dsMd .act{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
   #dsMd .act button{padding:11px 18px;border:none;border-radius:12px;font-weight:800;cursor:pointer;font-family:inherit;font-size:.85rem}
-  #dsMd .ok{background:#059669;color:#fff}.cp{background:#ede9fe;color:#6d28d9}.cl{background:#f1f5f9;color:#334155}
-  #dsMd .spin{width:34px;height:34px;border:3px solid #d1fae5;border-top-color:#059669;border-radius:50%;animation:dsSpin 1s linear infinite;margin:40px auto}
+  #dsMd .ok{background:var(--primary,#0f172a);color:#fff}.cp{background:#ede9fe;color:#6d28d9}.cl{background:#f1f5f9;color:#334155}
+  #dsMd .spin{width:34px;height:34px;border:3px solid var(--glass-border,#e2e8f0);border-top-color:var(--primary,#0f172a);border-radius:50%;animation:dsSpin 1s linear infinite;margin:40px auto}
   @keyframes dsSpin{to{transform:rotate(360deg)}}
   #dsMd pre.dscsv{background:#0c1526;color:#cbd5e1;border:1px solid #1e293b;border-radius:12px;padding:12px 14px;margin-top:14px;font-size:.7rem;line-height:1.5;font-family:ui-monospace,Menlo,monospace;max-height:300px;overflow:auto;white-space:pre;word-break:normal}
 </style>
 <div id="dsMdOv"><div id="dsMd">
   <h3>🛡️ Data Safety CSV — <span id="dsApp"></span></h3>
-  <p class="sub">OpenClaw đọc TOÀN BỘ source app (Dart + native + manifest + SDK). Import vào Play Console → App content → Data safety → Import from a CSV file.</p>
+  <p class="sub">Suy ra từ source thật (manifest + SDK trong pubspec/gradle). Import vào Play Console → App content → Data safety → Import from a CSV file.</p>
   <div id="dsBody"></div>
 </div></div>
 <script>(function(){
@@ -2383,7 +2384,14 @@
     lastCsv=d.csv||"";
     var head, rowsHtml="";
     if(engine==="ai"){
-      head='<div class="sub"><span class="bg yes">🤖 OpenClaw AI</span> đọc source thật · <b>'+(d.data_type_count||(d.rows||[]).length)+'</b> data-type</div>';
+      /* DS_UI_TRUTH: nhãn nguồn đọc từ field `engine` của chính dữ liệu, KHÔNG
+         hardcode "OpenClaw" — orbitly/pullwave đang do script deterministic sinh,
+         ghi nhầm nguồn là khai sai với người duyệt. */
+      var eng = (d.engine||'').toLowerCase();
+      var nguon = eng.indexOf('openclaw')>-1 ? '🤖 OpenClaw AI đọc source'
+                : eng.indexOf('determin')>-1 ? '⚙️ Script quét source'
+                : (d.engine ? '⚙️ '+d.engine : '⚙️ Quét source');
+      head='<div class="sub"><span class="bg yes">'+nguon+'</span> · <b>'+(d.data_type_count||(d.rows||[]).length)+'</b> data-type</div>';
     }else{
       head='<div class="sub"><b>'+esc(d.project||"")+'</b> @ '+esc(d.branch||"")+' · '+(d.permissions||[]).length+' permission + '+(d.sdks||[]).length+' SDK (regex) → <b>'+(d.data_type_count||0)+'</b> data-type</div>';
     }
@@ -2396,7 +2404,7 @@
       return "<tr><td>"+esc(x.data_type)+"</td><td>"+bg(x.collected)+"</td><td>"+bg(x.shared)+"</td>"+
         "<td class=evi>"+esc(x.collection_purposes||"—")+"</td><td class=evi>"+evi+"</td></tr>";
     }).join("");
-    var noteTxt = '✅ OpenClaw đọc source thật (đủ 782-dòng template Play Console). Vẫn là bản nháp — soát & khai chính xác trước khi upload. Bấm 🤖 Gen lại nếu source đổi.';
+    var noteTxt = '✅ Suy ra từ source thật: permission trong AndroidManifest + SDK trong pubspec/gradle (đủ 782-dòng template Play Console). Vẫn là BẢN NHÁP — soát và khai chính xác trước khi upload; các ô account-creation, data-deletion, ephemeral, user-control để trống cho người điền.';
     body.innerHTML=head+
       '<table><thead><tr><th>Data type</th><th>Collected</th><th>Shared</th><th>Purposes</th><th>Lý do</th></tr></thead><tbody>'+rowsHtml+'</tbody></table>'+
       '<pre class="dscsv" id="dsCsv" style="display:none">'+esc(lastCsv)+'</pre>'+
