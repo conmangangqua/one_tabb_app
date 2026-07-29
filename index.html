@@ -2342,6 +2342,13 @@
   #dsMd .bg{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.68rem;font-weight:800}
   #dsMd .yes{background:#dcfce7;color:#15803d}.no{background:#f1f5f9;color:#64748b}
   #dsMd .rev{background:#fef3c7;color:#b45309}
+  /* DS_FULL_PREVIEW — khối khai báo cấp cao */
+  #dsMd .ds-sums{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+  #dsMd .ds-sm{display:flex;flex-direction:column;gap:2px;background:#f8fafc;
+    border:1px solid var(--glass-border,#e2e8f0);border-radius:12px;padding:8px 12px;min-width:150px}
+  #dsMd .ds-sm span{font-size:.66rem;font-weight:700;color:var(--text-muted,#64748b);
+    text-transform:uppercase;letter-spacing:.03em}
+  #dsMd .ds-sm b{font-size:.78rem;font-weight:700;color:var(--text-main,#0f172a);word-break:break-word}
   #dsMd .evi{color:#64748b;font-size:.72rem}
   #dsMd .note{background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:11px 13px;font-size:.78rem;color:#92400e;margin-top:16px}
   #dsMd .act{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
@@ -2399,14 +2406,34 @@
       body.innerHTML=head+'<div class="note">Không phát hiện data-type nào. App có thể không thu thập dữ liệu — vẫn phải khai "No data collected" trong form. Bấm 🤖 Gen lại nếu cần đọc kỹ hơn.</div>'+actions(true);
       bindActions(); return;
     }
+    /* DS_FULL_PREVIEW: hiện đủ cột có trong CSV — thêm mục đích CHIA SẺ và
+       cột bắt-buộc/tự-chọn; cột "lý do" nay có dữ liệu (evidence từ sidecar). */
     rowsHtml=d.rows.map(function(x){
-      var evi = engine==="ai" ? esc(x.evidence||"") : (x.needs_review?'<span class="bg rev">NEEDS_REVIEW</span>':esc((x.evidence||[]).join(", ")));
+      var evi = Array.isArray(x.evidence) ? esc(x.evidence.join(", ")) : esc(x.evidence||"");
+      if(!evi && x.needs_review) evi='<span class="bg rev">NEEDS_REVIEW</span>';
+      var ctrl = (x.user_control==="required") ? '<span class="bg no">Bắt buộc</span>'
+               : (x.user_control==="optional") ? '<span class="bg yes">Tự chọn</span>' : '—';
+      var eph  = (x.ephemeral==="No"||x.ephemeral===false) ? "" : ' · tạm thời';
       return "<tr><td>"+esc(x.data_type)+"</td><td>"+bg(x.collected)+"</td><td>"+bg(x.shared)+"</td>"+
-        "<td class=evi>"+esc(x.collection_purposes||"—")+"</td><td class=evi>"+evi+"</td></tr>";
+        "<td class=evi>"+esc(x.collection_purposes||"—")+"</td>"+
+        "<td class=evi>"+esc(x.sharing_purposes||"—")+"</td>"+
+        "<td class=evi>"+ctrl+eph+"</td>"+
+        "<td class=evi>"+(evi||"—")+"</td></tr>";
     }).join("");
-    var noteTxt = '✅ Suy ra từ source thật: permission trong AndroidManifest + SDK trong pubspec/gradle (đủ 782-dòng template Play Console). Vẫn là BẢN NHÁP — soát và khai chính xác trước khi upload; các ô account-creation, data-deletion, ephemeral, user-control để trống cho người điền.';
+    /* Khai báo cấp cao có trong CSV nhưng bảng data-type không thể hiện được. */
+    var sm=d.summary||{}, smHtml='';
+    if(sm.collects_personal_data||sm.encrypted_in_transit||sm.data_deletion){
+      var ô=function(nhan,gt){ return gt?('<div class="ds-sm"><span>'+nhan+'</span><b>'+esc(gt)+'</b></div>'):''; };
+      smHtml='<div class="ds-sums">'
+        + ô('Có thu thập dữ liệu', sm.collects_personal_data)
+        + ô('Mã hoá khi truyền', sm.encrypted_in_transit)
+        + ô('Tạo tài khoản', sm.account_creation)
+        + ô('Xoá dữ liệu', sm.data_deletion)
+        + '</div>';
+    }
+    var noteTxt = '✅ Suy ra từ source thật: permission trong AndroidManifest + SDK trong pubspec/gradle (đủ 782-dòng template Play Console), đã điền sẵn cả account-creation, data-deletion + URL, ephemeral và user-control. Vẫn là BẢN NHÁP — soát lại trước khi upload; riêng MASA security review, UPI badge và tài khoản tạo ngoài app thì Console hỏi thêm, tick theo thực tế.';
     body.innerHTML=head+
-      '<table><thead><tr><th>Data type</th><th>Collected</th><th>Shared</th><th>Purposes</th><th>Lý do</th></tr></thead><tbody>'+rowsHtml+'</tbody></table>'+
+      smHtml+'<table><thead><tr><th>Data type</th><th>Thu thập</th><th>Chia sẻ</th><th>Mục đích thu thập</th><th>Mục đích chia sẻ</th><th>Người dùng tắt được?</th><th>Lý do (evidence)</th></tr></thead><tbody>'+rowsHtml+'</tbody></table>'+
       '<pre class="dscsv" id="dsCsv" style="display:none">'+esc(lastCsv)+'</pre>'+
       '<div class="note">'+noteTxt+'</div>'+actions(true);
     bindActions();
