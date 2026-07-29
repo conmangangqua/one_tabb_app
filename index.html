@@ -902,7 +902,7 @@
       }
     }
     function close(){ov.classList.remove("open");pin.value="";msg.textContent="";}
-    btn.onclick=function(){ if(authed()){ localStorage.removeItem(KEY); localStorage.removeItem(TKEY); render(); window.runHealthCheck && window.runHealthCheck(); } else { ov.classList.add("open"); setTimeout(function(){pin.focus();},50); } };
+    btn.onclick=function(){ if(authed()){ localStorage.removeItem(KEY); localStorage.removeItem(TKEY); try{ localStorage.removeItem("aab_partner"); }catch(_){} render(); window.runHealthCheck && window.runHealthCheck(); } else { ov.classList.add("open"); setTimeout(function(){pin.focus();},50); } };
     cancel.onclick=close;
     ov.addEventListener("click",function(e){ if(e.target===ov) close(); });
     pin.addEventListener("keydown",function(e){ if(e.key==="Enter") ok.click(); });
@@ -915,6 +915,7 @@
         var d=await r.json();
         if(!r.ok||!d.ok) throw new Error(d.error||"Sai mã PIN");
         localStorage.setItem(KEY,"1"); localStorage.setItem(TKEY, d.tier||"build");
+        try{ localStorage.setItem("aab_partner", d.partner||""); }catch(_){}
         render(); close(); window.runHealthCheck && window.runHealthCheck();
       }catch(e){ msg.style.color="#ef4444"; msg.textContent="❌ "+e.message; }
       finally{ ok.disabled=false; }
@@ -2398,6 +2399,55 @@
   mo.observe(document.body,{childList:true,subtree:true});
   document.addEventListener("DOMContentLoaded",function(){injectButtons(document);});
   injectButtons(document);
+})();</script>
+
+<style>/* ROLE_BADGE — cho biết đang đăng nhập với vai trò nào (Sếp 2026-07-29) */
+  #aabRole{display:none;align-items:center;gap:5px;padding:5px 11px;border-radius:999px;
+    font:800 .74rem/1 system-ui,-apple-system,sans-serif;letter-spacing:.02em;
+    margin-right:8px;vertical-align:middle;white-space:nowrap}
+  #aabRole.admin{background:#ede9fe;color:#5b21b6;border:1px solid #ddd6fe}
+  #aabRole.partner{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}
+  #aabRole.on{display:inline-flex}
+</style>
+<script>/* ROLE_BADGE */
+(function(){
+  function el(){ return document.getElementById("aablBtn"); }
+  function badge(){
+    var b=document.getElementById("aabRole");
+    if(b) return b;
+    var btn=el(); if(!btn) return null;
+    b=document.createElement("span"); b.id="aabRole";
+    btn.parentNode.insertBefore(b, btn);
+    return b;
+  }
+  function paint(){
+    var b=badge(); if(!b) return;
+    var authed=false, tier="", partner="";
+    try{
+      authed = localStorage.getItem("aab_authed")==="1";
+      tier   = localStorage.getItem("aab_tier")||"";
+      partner= localStorage.getItem("aab_partner")||"";
+    }catch(e){}
+    if(!authed){ b.className=""; b.textContent=""; return; }
+    // Hub không có partner tier chỉ dùng build PIN → không lưu aab_tier ⇒ coi là Admin.
+    if(tier==="partner"){
+      b.className="partner on";
+      b.textContent="🤝 Partner"+(partner&&partner!=="legacy"?" · "+partner:"");
+    }else{
+      b.className="admin on";
+      b.textContent="🛡️ Admin";
+    }
+  }
+  function start(){
+    var btn=el(); if(!btn){ return setTimeout(start,300); }
+    paint();
+    // Nút đổi nhãn khi login/logout → bám vào đó thay vì sửa render() của từng hub.
+    new MutationObserver(paint).observe(btn,{childList:true,subtree:true,characterData:true});
+    btn.addEventListener("click",function(){ setTimeout(paint,120); });
+    window.addEventListener("storage",paint);
+  }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",start);
+  else start();
 })();</script>
 </body>
 </html>
