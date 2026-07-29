@@ -2411,9 +2411,12 @@
       var ctrl = (x.user_control==="required") ? '<span class="bg no">Bắt buộc</span>'
                : (x.user_control==="optional") ? '<span class="bg yes">Tự chọn</span>' : '—';
       var eph  = (x.ephemeral==="No"||x.ephemeral===false) ? "" : ' · tạm thời';
+      /* CSV nối mục đích bằng "|" (định dạng của Play) — hiện ra người đọc thì
+         tách bằng dấu chấm giữa cho dễ đọc. */
+      var mucdich=function(v){ return v ? esc(v).split("|").join(" · ") : "—"; };
       return "<tr><td>"+esc(x.data_type)+"</td><td>"+bg(x.collected)+"</td><td>"+bg(x.shared)+"</td>"+
-        "<td class=evi>"+esc(x.collection_purposes||"—")+"</td>"+
-        "<td class=evi>"+esc(x.sharing_purposes||"—")+"</td>"+
+        "<td class=evi>"+mucdich(x.collection_purposes)+"</td>"+
+        "<td class=evi>"+mucdich(x.sharing_purposes)+"</td>"+
         "<td class=evi>"+ctrl+eph+"</td>"+
         "<td class=evi>"+(evi||"—")+"</td></tr>";
     }).join("");
