@@ -367,10 +367,37 @@
          category — kết quả đã lọc theo từ khoá nên chip vừa thừa vừa chiếm chỗ. */
       const chips = document.getElementById("catChips");
       if (chips) chips.style.display = query ? "none" : "";
-      renderApps(allApps.filter(app =>
-        (selectedCategory === "" || app.category === selectedCategory) &&
-        (app.name.toLowerCase().includes(query) || (app.description && app.description.toLowerCase().includes(query)) || (app.category && app.category.toLowerCase().includes(query)))
-      ));
+      /* FILTER_NO_RERENDER (Sếp 2026-07-29): chỉ ẩn/hiện card đã có, KHÔNG dựng
+         lại DOM. Trước đây mỗi ký tự gõ vào là renderApps() tạo mới toàn bộ card
+         → animation `reveal` chạy lại → item nhảy nhiều lần. Giữ nguyên card
+         cũng giữ được mô tả/badge/nút đã nạp, khỏi gọi lại API. */
+      const container = document.getElementById("appContainer");
+      const cards = container ? container.querySelectorAll(".app-card") : [];
+      if (!cards.length) { renderApps(allApps); return; }
+      let hien = 0;
+      cards.forEach(card => {
+        const app = allApps.find(a => a.id === card.dataset.appId) || {};
+        const descDom = (card.querySelector(".app-desc") || {}).textContent || "";
+        const khop = (selectedCategory === "" || app.category === selectedCategory) &&
+          ((app.name || "").toLowerCase().includes(query) ||
+           (app.description || "").toLowerCase().includes(query) ||
+           descDom.toLowerCase().includes(query) ||
+           (app.category || "").toLowerCase().includes(query));
+        card.style.display = khop ? "" : "none";
+        if (khop) hien++;
+      });
+      let trong = document.getElementById("noResultMsg");
+      if (!hien) {
+        if (!trong) {
+          trong = document.createElement("div");
+          trong.id = "noResultMsg";
+          trong.style.cssText = "grid-column:1/-1;text-align:center;padding:100px;color:var(--text-muted);font-weight:700";
+          trong.textContent = "🔍 No apps found matching your search.";
+          container.appendChild(trong);
+        }
+        trong.style.display = "";
+      } else if (trong) { trong.style.display = "none"; }
+      return;
       // Sếp 2026-06-24: filter rebuild DOM cards mới → .app-desc rỗng vì
       // apps.json không có description thật. enrichCardDescriptions() fetch
       // async từ GitHub app_description repo + inject vào DOM. Phải gọi lại
