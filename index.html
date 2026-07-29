@@ -2401,57 +2401,53 @@
   injectButtons(document);
 })();</script>
 
-<style>/* ROLE_BADGE — thanh vai trò trên cùng (Sếp 2026-07-29: chip góc quá nhỏ) */
-  #aabRoleBar{position:fixed;top:0;left:0;right:0;z-index:100010;display:none;
-    align-items:center;justify-content:center;gap:10px;height:40px;
-    font:800 .95rem/1 system-ui,-apple-system,sans-serif;letter-spacing:.01em;
-    box-shadow:0 2px 10px rgba(0,0,0,.10)}
-  #aabRoleBar.on{display:flex}
-  #aabRoleBar.admin{background:linear-gradient(90deg,#6d28d9,#7c3aed);color:#fff}
-  #aabRoleBar.partner{background:linear-gradient(90deg,#15803d,#16a34a);color:#fff}
-  #aabRoleBar .sub{font-weight:600;opacity:.85;font-size:.84rem}
-  @media(max-width:520px){#aabRoleBar{font-size:.85rem;height:36px}#aabRoleBar .sub{display:none}}
+<style>/* ROLE_BADGE — theo style .badge sẵn có của hub (pill pastel, uppercase) */
+  #aabRoleWrap{display:none;justify-content:center;margin:0 0 18px}
+  #aabRoleWrap.on{display:flex}
+  #aabRole{font-size:.8rem;font-weight:800;padding:7px 18px;border-radius:20px;
+    text-transform:uppercase;letter-spacing:.02em;display:inline-flex;align-items:center;gap:8px}
+  #aabRole.admin{background:#ede9fe;color:#5b21b6;border:1px solid #ddd6fe}
+  #aabRole.partner{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}
 </style>
 <script>/* ROLE_BADGE */
 (function(){
-  var BAR="aabRoleBar";
-  function bar(){
-    var b=document.getElementById(BAR);
-    if(!b){ b=document.createElement("div"); b.id=BAR; document.body.insertBefore(b, document.body.firstChild); }
-    return b;
+  function mount(){
+    var w=document.getElementById("aabRoleWrap");
+    if(w) return w;
+    var h=document.querySelector("header"); if(!h) return null;
+    w=document.createElement("div"); w.id="aabRoleWrap";
+    w.innerHTML='<span id="aabRole"></span>';
+    h.parentNode.insertBefore(w, h.nextSibling);
+    return w;
   }
   function paint(){
-    var b=bar(), authed=false, tier="", partner="";
+    var w=mount(); if(!w) return;
+    var b=document.getElementById("aabRole");
+    var authed=false, tier="", partner="";
     try{
       authed = localStorage.getItem("aab_authed")==="1";
       tier   = localStorage.getItem("aab_tier")||"";
       partner= localStorage.getItem("aab_partner")||"";
     }catch(e){}
-    if(!authed){
-      b.className=""; b.innerHTML="";
-      document.body.style.paddingTop="";
-      return;
-    }
+    if(!authed){ w.classList.remove("on"); b.className=""; b.textContent=""; return; }
     // Hub chỉ có build PIN không lưu aab_tier ⇒ coi là Admin.
     if(tier==="partner"){
-      b.className="partner on";
-      b.innerHTML='🤝 Đang đăng nhập: <u>PARTNER'+(partner&&partner!=="legacy"?" · "+partner.toUpperCase():"")
-        +'</u><span class="sub">chỉ thấy chức năng dành cho partner</span>';
+      b.className="partner";
+      b.textContent="🤝 Partner"+(partner&&partner!=="legacy"?" · "+partner:"");
     }else{
-      b.className="admin on";
-      b.innerHTML='🛡️ Đang đăng nhập: <u>ADMIN</u><span class="sub">thấy toàn bộ chức năng nội bộ</span>';
+      b.className="admin"; b.textContent="🛡️ Admin";
     }
-    document.body.style.paddingTop=b.offsetHeight+"px";
+    w.classList.add("on");
   }
   function start(){
     var btn=document.getElementById("aablBtn");
     if(!btn){ return setTimeout(start,300); }
     paint();
-    // Nút đổi nhãn khi login/logout → bám vào đó thay vì sửa render() của từng hub.
+    // Nút đổi nhãn khi login/logout → bám vào đó, chạy được với cả 2 biến thể
+    // code login của các hub (8 hub render 1 dòng, 3 hub có partner tier).
     new MutationObserver(paint).observe(btn,{childList:true,subtree:true,characterData:true});
     btn.addEventListener("click",function(){ setTimeout(paint,120); });
     window.addEventListener("storage",paint);
-    window.addEventListener("resize",function(){ if(document.getElementById(BAR).classList.contains("on")) paint(); });
   }
   if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",start);
   else start();
