@@ -908,18 +908,18 @@
        thay vì system-ui + màu hardcode như trước. */
     #aablMd{background:#fff;border-radius:22px;padding:28px 24px;width:100%;max-width:360px;
       box-shadow:0 30px 80px rgba(0,0,0,.28);font-family:inherit}
-    #aablMd h3{margin:0;font-size:1.2rem;font-weight:800;color:var(--text-main,#0f172a);
+    #aablMd h3{margin:0;font-size:1.2rem;font-weight:800;color:#0f172a;
       display:flex;align-items:center;gap:9px}
-    #aablSub{margin:6px 0 18px;font-size:.83rem;font-weight:600;color:var(--text-muted,#64748b)}
+    #aablSub{margin:6px 0 18px;font-size:.83rem;font-weight:600;color:#64748b}
     #aablField{position:relative}
     #aablMd input{width:100%;box-sizing:border-box;padding:13px 46px 13px 16px;
-      border:1.5px solid var(--glass-border,#e2e8f0);border-radius:14px;font-family:inherit;
-      font-size:1rem;font-weight:700;letter-spacing:.08em;color:var(--text-main,#0f172a);
+      border:1.5px solid #e2e8f0;border-radius:14px;font-family:inherit;
+      font-size:1rem;font-weight:700;letter-spacing:.08em;color:#0f172a;
       background:#f8fafc;outline:none;transition:border-color .2s,background .2s}
     #aablMd input:focus{border-color:var(--primary,#0f172a);background:#fff}
     #aablEye{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:32px;height:32px;
       display:flex;align-items:center;justify-content:center;border:none;background:transparent;
-      color:var(--text-muted,#94a3b8);cursor:pointer;border-radius:9px;padding:0}
+      color:#94a3b8;cursor:pointer;border-radius:9px;padding:0}
     #aablEye:hover{background:#f1f5f9;color:var(--primary,#0f172a)}
     #aablMsg{min-height:18px;margin-top:10px;font-size:.82rem;font-weight:700;text-align:center;color:#ef4444}
     #aablAct{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
@@ -2335,29 +2335,34 @@
   body.aab-authed .btn-ds{display:flex!important}
   #dsMdOv{position:fixed;inset:0;background:rgba(2,6,23,.62);backdrop-filter:blur(4px);z-index:10000;display:none;align-items:center;justify-content:center;padding:18px}
   #dsMdOv.open{display:flex}
-  /* DS_UI_TRUTH: kế thừa font + màu chữ của hub thay vì system-ui/#0f172a */
-  #dsMd{background:#fff;border-radius:22px;padding:26px 26px 22px;width:100%;max-width:860px;max-height:92vh;overflow:auto;box-shadow:0 40px 100px rgba(0,0,0,.35);font-family:inherit;color:var(--text-main,#0f172a)}
+  /* MODAL_LIGHT_FIXED (Sếp 2026-07-29, ảnh popup login adc-media): modal nền
+     TRẮNG nên chữ/viền phải tối cố định. Trước đây lấy var(--text-main) cho
+     "đồng bộ với hub", nhưng adc-media là hub theme TỐI (--text-main #f5f5f7)
+     → chữ trắng trên nền trắng, gần như tàng hình. Chỉ accent (nút, focus,
+     tab active) mới dùng var(--primary) vì đó là màu thương hiệu. */
+  /* Kế thừa font của hub; màu chữ thì cố định theo nền modal. */
+  #dsMd{background:#fff;border-radius:22px;padding:26px 26px 22px;width:100%;max-width:860px;max-height:92vh;overflow:auto;box-shadow:0 40px 100px rgba(0,0,0,.35);font-family:inherit;color:#0f172a}
   #dsMd h3{margin:0 0 3px;font-size:1.08rem;font-weight:800;display:flex;align-items:center;gap:8px}
-  #dsMd .sub{color:var(--text-muted,#64748b);font-size:.82rem;margin:0 0 16px}
+  #dsMd .sub{color:#64748b;font-size:.82rem;margin:0 0 16px}
   #dsMd table{width:100%;border-collapse:collapse;font-size:.8rem}
-  #dsMd th,#dsMd td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--glass-border,#e2e8f0);vertical-align:top}
-  #dsMd th{color:var(--text-muted,#64748b);font-weight:700;font-size:.68rem;text-transform:uppercase;letter-spacing:.03em}
+  #dsMd th,#dsMd td{text-align:left;padding:8px 10px;border-bottom:1px solid #e2e8f0;vertical-align:top}
+  #dsMd th{color:#64748b;font-weight:700;font-size:.68rem;text-transform:uppercase;letter-spacing:.03em}
   #dsMd .bg{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.68rem;font-weight:800}
   #dsMd .yes{background:#dcfce7;color:#15803d}.no{background:#f1f5f9;color:#64748b}
   #dsMd .rev{background:#fef3c7;color:#b45309}
   /* DS_FULL_PREVIEW — khối khai báo cấp cao */
   #dsMd .ds-sums{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
   #dsMd .ds-sm{display:flex;flex-direction:column;gap:2px;background:#f8fafc;
-    border:1px solid var(--glass-border,#e2e8f0);border-radius:12px;padding:8px 12px;min-width:150px}
-  #dsMd .ds-sm span{font-size:.66rem;font-weight:700;color:var(--text-muted,#64748b);
+    border:1px solid #e2e8f0;border-radius:12px;padding:8px 12px;min-width:150px}
+  #dsMd .ds-sm span{font-size:.66rem;font-weight:700;color:#64748b;
     text-transform:uppercase;letter-spacing:.03em}
-  #dsMd .ds-sm b{font-size:.78rem;font-weight:700;color:var(--text-main,#0f172a);word-break:break-word}
+  #dsMd .ds-sm b{font-size:.78rem;font-weight:700;color:#0f172a;word-break:break-word}
   #dsMd .evi{color:#64748b;font-size:.72rem}
   #dsMd .note{background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:11px 13px;font-size:.78rem;color:#92400e;margin-top:16px}
   #dsMd .act{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
   #dsMd .act button{padding:11px 18px;border:none;border-radius:12px;font-weight:800;cursor:pointer;font-family:inherit;font-size:.85rem}
   #dsMd .ok{background:var(--primary,#0f172a);color:#fff}.cp{background:#ede9fe;color:#6d28d9}.cl{background:#f1f5f9;color:#334155}
-  #dsMd .spin{width:34px;height:34px;border:3px solid var(--glass-border,#e2e8f0);border-top-color:var(--primary,#0f172a);border-radius:50%;animation:dsSpin 1s linear infinite;margin:40px auto}
+  #dsMd .spin{width:34px;height:34px;border:3px solid #e2e8f0;border-top-color:var(--primary,#0f172a);border-radius:50%;animation:dsSpin 1s linear infinite;margin:40px auto}
   @keyframes dsSpin{to{transform:rotate(360deg)}}
   #dsMd pre.dscsv{background:#0c1526;color:#cbd5e1;border:1px solid #1e293b;border-radius:12px;padding:12px 14px;margin-top:14px;font-size:.7rem;line-height:1.5;font-family:ui-monospace,Menlo,monospace;max-height:300px;overflow:auto;white-space:pre;word-break:normal}
 </style>
