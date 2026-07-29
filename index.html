@@ -363,6 +363,10 @@
     };
     const filterApps = () => {
       const query = document.getElementById("searchInput").value.toLowerCase();
+      /* HIDE_CHIPS_ON_SEARCH (Sếp 2026-07-29): đang gõ tìm kiếm thì ẩn hàng chip
+         category — kết quả đã lọc theo từ khoá nên chip vừa thừa vừa chiếm chỗ. */
+      const chips = document.getElementById("catChips");
+      if (chips) chips.style.display = query ? "none" : "";
       renderApps(allApps.filter(app =>
         (selectedCategory === "" || app.category === selectedCategory) &&
         (app.name.toLowerCase().includes(query) || (app.description && app.description.toLowerCase().includes(query)) || (app.category && app.category.toLowerCase().includes(query)))
