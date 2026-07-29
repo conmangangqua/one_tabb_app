@@ -82,6 +82,12 @@
   </style>
   <style>/* AAB_TRIGGER_INJECTED */
     .btn-build{grid-column:span 2;background:#0f172a;color:#fff;border:1px solid #0f172a;cursor:pointer;font-family:inherit}
+    /* BTN_PAIR_ROW (Sếp 2026-07-29): xếp cặp Build / Download cùng hàng.
+       Chỉ bỏ span 2 khi lưới THẬT SỰ có nút no-ads đi kèm (dùng :has), để app
+       không có bản no-ads vẫn giữ nút rộng cả hàng, không hở nửa hàng trống. */
+    .btn-grid:has(.btn-noadsb) .btn-build{grid-column:auto}
+    .btn-grid:has(.btn-noads)  .btn-full {grid-column:auto}
+    /* Trình duyệt cũ không hỗ trợ :has() thì rơi về hành vi cũ (span 2) — chấp nhận được. */
     .btn-build:hover{background:#1e293b}
     .btn-store{grid-column:span 2;background:#16a34a;color:#fff;border:1px solid #16a34a;text-decoration:none}
     .btn-store:hover{background:#15803d}
