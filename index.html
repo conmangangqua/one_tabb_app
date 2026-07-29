@@ -2401,50 +2401,57 @@
   injectButtons(document);
 })();</script>
 
-<style>/* ROLE_BADGE — cho biết đang đăng nhập với vai trò nào (Sếp 2026-07-29) */
-  #aabRole{display:none;align-items:center;gap:5px;padding:5px 11px;border-radius:999px;
-    font:800 .74rem/1 system-ui,-apple-system,sans-serif;letter-spacing:.02em;
-    margin-right:8px;vertical-align:middle;white-space:nowrap}
-  #aabRole.admin{background:#ede9fe;color:#5b21b6;border:1px solid #ddd6fe}
-  #aabRole.partner{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}
-  #aabRole.on{display:inline-flex}
+<style>/* ROLE_BADGE — thanh vai trò trên cùng (Sếp 2026-07-29: chip góc quá nhỏ) */
+  #aabRoleBar{position:fixed;top:0;left:0;right:0;z-index:100010;display:none;
+    align-items:center;justify-content:center;gap:10px;height:40px;
+    font:800 .95rem/1 system-ui,-apple-system,sans-serif;letter-spacing:.01em;
+    box-shadow:0 2px 10px rgba(0,0,0,.10)}
+  #aabRoleBar.on{display:flex}
+  #aabRoleBar.admin{background:linear-gradient(90deg,#6d28d9,#7c3aed);color:#fff}
+  #aabRoleBar.partner{background:linear-gradient(90deg,#15803d,#16a34a);color:#fff}
+  #aabRoleBar .sub{font-weight:600;opacity:.85;font-size:.84rem}
+  @media(max-width:520px){#aabRoleBar{font-size:.85rem;height:36px}#aabRoleBar .sub{display:none}}
 </style>
 <script>/* ROLE_BADGE */
 (function(){
-  function el(){ return document.getElementById("aablBtn"); }
-  function badge(){
-    var b=document.getElementById("aabRole");
-    if(b) return b;
-    var btn=el(); if(!btn) return null;
-    b=document.createElement("span"); b.id="aabRole";
-    btn.parentNode.insertBefore(b, btn);
+  var BAR="aabRoleBar";
+  function bar(){
+    var b=document.getElementById(BAR);
+    if(!b){ b=document.createElement("div"); b.id=BAR; document.body.insertBefore(b, document.body.firstChild); }
     return b;
   }
   function paint(){
-    var b=badge(); if(!b) return;
-    var authed=false, tier="", partner="";
+    var b=bar(), authed=false, tier="", partner="";
     try{
       authed = localStorage.getItem("aab_authed")==="1";
       tier   = localStorage.getItem("aab_tier")||"";
       partner= localStorage.getItem("aab_partner")||"";
     }catch(e){}
-    if(!authed){ b.className=""; b.textContent=""; return; }
-    // Hub không có partner tier chỉ dùng build PIN → không lưu aab_tier ⇒ coi là Admin.
+    if(!authed){
+      b.className=""; b.innerHTML="";
+      document.body.style.paddingTop="";
+      return;
+    }
+    // Hub chỉ có build PIN không lưu aab_tier ⇒ coi là Admin.
     if(tier==="partner"){
       b.className="partner on";
-      b.textContent="🤝 Partner"+(partner&&partner!=="legacy"?" · "+partner:"");
+      b.innerHTML='🤝 Đang đăng nhập: <u>PARTNER'+(partner&&partner!=="legacy"?" · "+partner.toUpperCase():"")
+        +'</u><span class="sub">chỉ thấy chức năng dành cho partner</span>';
     }else{
       b.className="admin on";
-      b.textContent="🛡️ Admin";
+      b.innerHTML='🛡️ Đang đăng nhập: <u>ADMIN</u><span class="sub">thấy toàn bộ chức năng nội bộ</span>';
     }
+    document.body.style.paddingTop=b.offsetHeight+"px";
   }
   function start(){
-    var btn=el(); if(!btn){ return setTimeout(start,300); }
+    var btn=document.getElementById("aablBtn");
+    if(!btn){ return setTimeout(start,300); }
     paint();
     // Nút đổi nhãn khi login/logout → bám vào đó thay vì sửa render() của từng hub.
     new MutationObserver(paint).observe(btn,{childList:true,subtree:true,characterData:true});
     btn.addEventListener("click",function(){ setTimeout(paint,120); });
     window.addEventListener("storage",paint);
+    window.addEventListener("resize",function(){ if(document.getElementById(BAR).classList.contains("on")) paint(); });
   }
   if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",start);
   else start();
