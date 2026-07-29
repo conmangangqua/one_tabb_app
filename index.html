@@ -361,11 +361,10 @@
           <div class="badge-row"><span class="badge ${isIOS ? 'ios' : 'android'}"><i data-lucide="${isIOS ? 'apple' : 'smartphone'}" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>${app.platform || 'Android'}</span>${app.category ? `<span class="pill-category cat-src-${app.category_source||'store'}" title="Nguồn category: ${app.category_source==='override'?'Override tay':app.category_source==='ai'?'AI phân loại':app.category_source==='gitlab'?'Fallback subgroup':'Store category'}"><i data-lucide="tag"></i>${app.category}</span>` : ''}<span class="prod-ads-badge" data-prod-ads="loading" style="display:none"></span><span class="health-badge" data-health="loading" style="display:none"></span></div>
           <h2 class="app-title">${app.name}</h2><p class="app-desc">${app.description || ''}</p>
           <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev"><i class="btn-ic" data-lucide="wrench"></i>${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live"><i class="btn-ic" data-lucide="rocket"></i>${stack('Live Build','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full"><i class="btn-ic" data-lucide="package"></i>${stack('Download AAB','aab')}</a>` : ""} ${storeUrl ? `<a href="${storeUrl}" target="_blank" rel="noopener" class="btn btn-store"><i class="btn-ic" data-lucide="shopping-bag"></i><span class="btn-stack">View on Store${app.store_version ? `<span class="ver" data-store-ver>${app.store_version}</span>` : `<span class="ver" data-store-ver style="display:none"></span>`}</span></a>` : ""}
-          <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')"><i class="btn-ic" data-lucide="hammer"></i><span class="btn-stack">${buildLabel}</span></button>${noAdsTrigger}${noAdsDl}<button type="button" class="btn btn-gd" onclick="openViewDesc('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="file-text"></i><span class="btn-stack">Description</span></button><button type="button" class="btn btn-rn" onclick="openRelNotes('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="megaphone"></i><span class="btn-stack">Release Notes</span></button><button type="button" class="btn btn-as" onclick="dlAssets('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)"><i class="btn-ic" data-lucide="download"></i><span class="btn-stack">Assets</span></button><button type="button" class="btn btn-ss" onclick="openShots('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="image"></i><span class="btn-stack">Screenshots</span></button><button type="button" class="btn btn-cfg" onclick="openConfig('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="settings-2"></i><span class="btn-stack">Kiểm tra cấu hình</span></button></div><div class="store-meta">${app.storeUpdated ? `<span class="store-upd"><span class="icon">📅</span>Updated on ${app.storeUpdated}</span>` : ""}</div>`;
+          <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')"><i class="btn-ic" data-lucide="hammer"></i><span class="btn-stack">${buildLabel}</span></button>${noAdsTrigger}${noAdsDl}<button type="button" class="btn btn-gd" onclick="openViewDesc('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="file-text"></i><span class="btn-stack">Description</span></button><!-- DS_TAKES_RN_SLOT: Data Safety đứng đúng ô cũ của Release Notes; render sẵn trong markup nên không cần injectButtons() chèn muộn (thủ phạm giật card). --><button type="button" class="btn btn-ds" onclick="openDataSafety('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="shield-check"></i><span class="btn-stack">Data Safety</span></button><button type="button" class="btn btn-as" onclick="dlAssets('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)"><i class="btn-ic" data-lucide="download"></i><span class="btn-stack">Assets</span></button><button type="button" class="btn btn-ss" onclick="openShots('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="image"></i><span class="btn-stack">Screenshots</span></button><button type="button" class="btn btn-cfg" onclick="openConfig('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="settings-2"></i><span class="btn-stack">Kiểm tra cấu hình</span></button></div><div class="store-meta">${app.storeUpdated ? `<span class="store-upd"><span class="icon">📅</span>Updated on ${app.storeUpdated}</span>` : ""}</div>`;
         container.appendChild(card);
       });
       /* INJECT_SYNC: chèn nút ngay trong cùng lượt vẽ để card không đổi kích thước sau đó. */
-      try{ window.__hubInjectButtons && window.__hubInjectButtons(container); }catch(e){}
     };
     const filterApps = () => {
       const query = document.getElementById("searchInput").value.toLowerCase();
@@ -1021,9 +1020,6 @@
 
   <style>/* AAB_GENDESC AAB_VIEWDESC */
     .btn-gd{background:#7c3aed;color:#fff;border:1px solid #7c3aed;cursor:pointer;display:none!important}
-    .btn-rn{background:#ea580c;color:#fff;border:1px solid #ea580c;cursor:pointer;display:none!important}
-    .btn-rn:hover{background:#c2410c}
-    body.aab-authed .btn-rn{display:flex!important}
     #rnMd input{width:100%;box-sizing:border-box;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:.95rem;font-weight:600;outline:none;margin-top:16px}
     #rnMd input:focus{border-color:#ea580c}
     #rnAct{display:grid;grid-template-columns:1fr 2fr;gap:10px;margin-top:16px}
@@ -2329,6 +2325,7 @@
   })();</script>
 <!-- data-safety-widget --><style>
   .btn-ds{background:#059669;color:#fff;border:1px solid #059669;cursor:pointer;display:none!important}
+  .btn-ds:hover{background:#047857}
   body.aab-authed .btn-ds{display:flex!important}
   #dsMdOv{position:fixed;inset:0;background:rgba(2,6,23,.62);backdrop-filter:blur(4px);z-index:10000;display:none;align-items:center;justify-content:center;padding:18px}
   #dsMdOv.open{display:flex}
@@ -2444,14 +2441,14 @@
       (canGen?'<input id="dsPin" type="password" inputmode="numeric" placeholder="Nhập PIN" onkeydown="if(event.key===\'Enter\')document.getElementById(\'dsAi\').click()" style="padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-weight:600;font-size:.9rem;outline:none;width:120px">':'')+
       (canGen?'<button class="ok" id="dsAi">🔔 Nhắc bot gen Data Safety</button>':'')+
       (lastCsv?'<button class="cl" id="dsView">👁️ Xem CSV</button>':'')+
-      (lastCsv?'<button class="ok" id="dsDl">⬇️ Tải CSV</button><button class="cp" id="dsCp">📋 Copy</button>':'')+
+      /* Bỏ nút Copy: Play Console chỉ IMPORT FILE csv, chép text vào clipboard vô dụng. */
+      (lastCsv?'<button class="ok" id="dsDl">⬇️ Tải CSV</button>':'')+
       '<button class="cl" id="dsCl">Đóng</button></div>';
   }
   function bindActions(){
-    var dl=document.getElementById("dsDl"),cp=document.getElementById("dsCp"),cl=document.getElementById("dsCl"),ai=document.getElementById("dsAi"),vw=document.getElementById("dsView");
+    var dl=document.getElementById("dsDl"),cl=document.getElementById("dsCl"),ai=document.getElementById("dsAi"),vw=document.getElementById("dsView");
     if(cl)cl.onclick=close;
     if(dl)dl.onclick=function(){if(!lastCsv)return;var b=new Blob([lastCsv],{type:"text/csv"});var u=URL.createObjectURL(b);var a=document.createElement("a");a.href=u;a.download=lastApp+"-data-safety.csv";a.click();URL.revokeObjectURL(u);};
-    if(cp)cp.onclick=function(){if(lastCsv)navigator.clipboard.writeText(lastCsv);};
     if(vw)vw.onclick=function(){var p=document.getElementById("dsCsv");if(!p)return;var show=p.style.display==="none";p.style.display=show?"block":"none";vw.textContent=show?"🙈 Ẩn CSV":"👁️ Xem CSV";};
     if(ai)ai.onclick=triggerAi;
   }
@@ -2482,34 +2479,8 @@
       if(sec>360){ clearInterval(pollTimer);pollTimer=null; body.innerHTML='<div class="note">⏱️ Bot đọc toàn bộ source lâu hơn dự kiến — vẫn có thể đang chạy. Mở lại sau ít phút để xem kết quả.</div>'+actions(true); bindActions(); }
     },5000);
   }
-  // Inject nút "Data Safety" vào mỗi card (login-gated qua CSS body.aab-authed).
-  var mo;
-  function injectButtons(root){
-    var added=0;
-    (root||document).querySelectorAll(".btn-grid").forEach(function(grid){
-      if(grid.querySelector(".btn-ds"))return;
-      var card=grid.closest("[data-app-id]"); if(!card)return;
-      var id=card.getAttribute("data-app-id"); if(!id)return;
-      var nm=(card.querySelector(".app-name,h2,h3")||{}).textContent||id;
-      var b=document.createElement("button");
-      b.type="button"; b.className="btn btn-ds";
-      b.innerHTML='<i class="btn-ic" data-lucide="shield-check"></i><span class="btn-stack">Data Safety</span>';
-      b.onclick=function(){window.openDataSafety(id,nm.trim());};
-      grid.appendChild(b); added++;
-    });
-    // FIX vong lap vo han (trang trang): chi createIcons khi THUC them nut, va
-    // ngat observer luc createIcons de mutation cua no khong tu kich lai injectButtons.
-    if(added && window.lucide&&lucide.createIcons){ if(mo)mo.disconnect(); try{lucide.createIcons();}catch(_){}; if(mo)/* ANTI_FLICKER ③: chỉ theo dõi #appContainer, không phải cả body — trước đây mọi badge/mô tả đổ về đều kích hoạt lại injectButtons + lucide.createIcons() toàn trang. */
-  mo.observe(document.getElementById("appContainer")||document.body,{childList:true,subtree:true}); }
-  }
-  /* INJECT_SYNC: phơi ra để renderApps gọi ngay sau khi vẽ card, khỏi đợi
-     debounce 200ms của observer (nút chèn muộn làm card đội cao → giật). */
-  window.__hubInjectButtons = injectButtons;
-  mo=new MutationObserver(function(){ if(mo._t)return; mo._t=setTimeout(function(){mo._t=null;injectButtons(document);},200); });
-  /* ANTI_FLICKER ③: chỉ theo dõi #appContainer, không phải cả body — trước đây mọi badge/mô tả đổ về đều kích hoạt lại injectButtons + lucide.createIcons() toàn trang. */
-  mo.observe(document.getElementById("appContainer")||document.body,{childList:true,subtree:true});
-  document.addEventListener("DOMContentLoaded",function(){injectButtons(document);});
-  injectButtons(document);
+  /* DS_TAKES_RN_SLOT: đã bỏ injectButtons()/MutationObserver — nút Data Safety
+     nay nằm sẵn trong markup card, không còn chèn muộn nên card hết đội cao. */
 })();</script>
 
 <style>/* ROLE_BADGE — theo style .badge sẵn có của hub (pill pastel, uppercase) */
