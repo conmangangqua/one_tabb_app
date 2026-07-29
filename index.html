@@ -39,6 +39,10 @@
     main { flex: 1; width: 100%; max-width: 1800px; margin: 0 auto; padding: 20px 40px 100px; }
     #appContainer { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 40px; }
     .app-card { background: var(--card-bg); backdrop-filter: blur(20px); border: 2px solid var(--glass-border); border-radius: var(--card-radius); padding: 50px 40px; display: flex; flex-direction: column; transition: all 0.6s cubic-bezier(0.19, 1, 0.22, 1); opacity: 0; transform: rotate(1deg) translateY(50px); animation: reveal 0.8s forwards; box-shadow: 0 15px 45px rgba(37, 99, 235, 0.06); }
+    .app-desc{min-height:42px}
+    .badge-row{min-height:34px}
+    /* ANTI_FLICKER ②: giữ sẵn chỗ cho mô tả + badge (đổ về sau qua API) để
+       card không cao lên giữa chừng gây giật. */
     .app-card:hover { transform: rotate(0deg) translateY(-15px); background: #ffffff; border-color: var(--primary); box-shadow: 0 45px 85px -20px rgba(37, 99, 235, 0.15), 0 0 25px var(--primary-glow); }
     .app-icon-box { width: 120px; height: 120px; margin: 0 auto 35px; border-radius: 50%; padding: 10px; background: #eff4ff; box-shadow: 0 10px 25px rgba(37, 99, 235, 0.1); display: flex; align-items: center; justify-content: center; }
     .app-icon { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
@@ -346,7 +350,7 @@
         const stack = (label, k) => v[k]
           ? `<span class="btn-stack">${label}<span class="ver">v${v[k]}</span></span>`
           : `<span class="btn-stack">${label}</span>`;
-        const card = document.createElement("article"); card.className = "app-card"; card.style.animationDelay = `${index * 0.1}s`; card.dataset.appId = app.id;
+        const card = document.createElement("article"); card.className = "app-card"; card.style.animationDelay = `${Math.min(index, 8) * 0.06}s`; /* ANTI_FLICKER ①: chặn stagger, 36 app không phải đợi 3.6s */ card.dataset.appId = app.id;
         card.innerHTML = `<div class="app-icon-box"><img src="${app.icon || 'https://via.placeholder.com/150'}" class="app-icon" loading="lazy" decode="async" alt="${app.name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(app.name)}&background=059669&color=fff'"></div>
           <div class="badge-row"><span class="badge ${isIOS ? 'ios' : 'android'}"><i data-lucide="${isIOS ? 'apple' : 'smartphone'}" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>${app.platform || 'Android'}</span>${app.category ? `<span class="pill-category cat-src-${app.category_source||'store'}" title="Nguồn category: ${app.category_source==='override'?'Override tay':app.category_source==='ai'?'AI phân loại':app.category_source==='gitlab'?'Fallback subgroup':'Store category'}"><i data-lucide="tag"></i>${app.category}</span>` : ''}<span class="prod-ads-badge" data-prod-ads="loading" style="display:none"></span><span class="health-badge" data-health="loading" style="display:none"></span></div>
           <h2 class="app-title">${app.name}</h2><p class="app-desc">${app.description || ''}</p>
@@ -2393,10 +2397,12 @@
     });
     // FIX vong lap vo han (trang trang): chi createIcons khi THUC them nut, va
     // ngat observer luc createIcons de mutation cua no khong tu kich lai injectButtons.
-    if(added && window.lucide&&lucide.createIcons){ if(mo)mo.disconnect(); try{lucide.createIcons();}catch(_){}; if(mo)mo.observe(document.body,{childList:true,subtree:true}); }
+    if(added && window.lucide&&lucide.createIcons){ if(mo)mo.disconnect(); try{lucide.createIcons();}catch(_){}; if(mo)/* ANTI_FLICKER ③: chỉ theo dõi #appContainer, không phải cả body — trước đây mọi badge/mô tả đổ về đều kích hoạt lại injectButtons + lucide.createIcons() toàn trang. */
+  mo.observe(document.getElementById("appContainer")||document.body,{childList:true,subtree:true}); }
   }
   mo=new MutationObserver(function(){ if(mo._t)return; mo._t=setTimeout(function(){mo._t=null;injectButtons(document);},200); });
-  mo.observe(document.body,{childList:true,subtree:true});
+  /* ANTI_FLICKER ③: chỉ theo dõi #appContainer, không phải cả body — trước đây mọi badge/mô tả đổ về đều kích hoạt lại injectButtons + lucide.createIcons() toàn trang. */
+  mo.observe(document.getElementById("appContainer")||document.body,{childList:true,subtree:true});
   document.addEventListener("DOMContentLoaded",function(){injectButtons(document);});
   injectButtons(document);
 })();</script>
