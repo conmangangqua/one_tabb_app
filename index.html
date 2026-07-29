@@ -896,20 +896,39 @@
     #aablBtn{position:fixed;right:16px;bottom:16px;z-index:100000;background:#0f172a;color:#fff;border:none;border-radius:999px;padding:12px 18px;font:600 14px/1 system-ui,-apple-system,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.25);cursor:pointer}
     #aablOv{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:100001;padding:20px}
     #aablOv.open{display:flex}
-    #aablMd{background:#fff;border-radius:20px;padding:26px 22px;width:100%;max-width:340px;box-shadow:0 30px 80px rgba(0,0,0,.3);font-family:system-ui,-apple-system,sans-serif}
-    #aablMd h3{margin:0 0 14px;font-size:1.15rem;color:#0f172a}
-    #aablMd input{width:100%;box-sizing:border-box;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:1rem;font-weight:600;outline:none}
-    #aablMd input:focus{border-color:#0f172a}
-    #aablMsg{min-height:18px;margin-top:10px;font-size:.82rem;font-weight:600;text-align:center;color:#ef4444}
+    /* LOGIN_UI_V2 — theo style hub: font Plus Jakarta Sans + var(--primary),
+       thay vì system-ui + màu hardcode như trước. */
+    #aablMd{background:#fff;border-radius:22px;padding:28px 24px;width:100%;max-width:360px;
+      box-shadow:0 30px 80px rgba(0,0,0,.28);font-family:inherit}
+    #aablMd h3{margin:0;font-size:1.2rem;font-weight:800;color:var(--text-main,#0f172a);
+      display:flex;align-items:center;gap:9px}
+    #aablSub{margin:6px 0 18px;font-size:.83rem;font-weight:600;color:var(--text-muted,#64748b)}
+    #aablField{position:relative}
+    #aablMd input{width:100%;box-sizing:border-box;padding:13px 46px 13px 16px;
+      border:1.5px solid var(--glass-border,#e2e8f0);border-radius:14px;font-family:inherit;
+      font-size:1rem;font-weight:700;letter-spacing:.08em;color:var(--text-main,#0f172a);
+      background:#f8fafc;outline:none;transition:border-color .2s,background .2s}
+    #aablMd input:focus{border-color:var(--primary,#0f172a);background:#fff}
+    #aablEye{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:32px;height:32px;
+      display:flex;align-items:center;justify-content:center;border:none;background:transparent;
+      color:var(--text-muted,#94a3b8);cursor:pointer;border-radius:9px;padding:0}
+    #aablEye:hover{background:#f1f5f9;color:var(--primary,#0f172a)}
+    #aablMsg{min-height:18px;margin-top:10px;font-size:.82rem;font-weight:700;text-align:center;color:#ef4444}
     #aablAct{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
-    #aablAct button{padding:12px;border:none;border-radius:12px;font-weight:700;cursor:pointer;font-family:inherit}
+    #aablAct button{padding:13px;border:none;border-radius:14px;font-weight:800;font-size:.92rem;
+      cursor:pointer;font-family:inherit}
     .aabl-cancel{background:#f1f5f9;color:#475569}
-    .aabl-ok{background:#059669;color:#fff}
+    .aabl-ok{background:var(--primary,#0f172a);color:#fff}
+    .aabl-ok:hover{filter:brightness(1.08)}
   </style>
   <button id="aablBtn" type="button"><i data-lucide="lock-keyhole" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>Đăng nhập</button>
   <div id="aablOv"><div id="aablMd">
-    <h3><i data-lucide="lock-keyhole" style="width:20px;height:20px;vertical-align:-4px;margin-right:8px"></i>Đăng nhập Build</h3>
-    <input id="aablPin" type="password" inputmode="numeric" placeholder="Nhập mã PIN" autocomplete="off">
+    <h3><i data-lucide="lock-keyhole" style="width:19px;height:19px"></i>Đăng nhập</h3>
+    <div id="aablSub">Nhập mã PIN để mở các chức năng quản trị</div>
+    <div id="aablField">
+      <input id="aablPin" type="password" inputmode="numeric" placeholder="Nhập mã PIN" autocomplete="off">
+      <button type="button" id="aablEye" title="Hiện / ẩn mã PIN"><i data-lucide="eye"></i></button>
+    </div>
     <div id="aablMsg"></div>
     <div id="aablAct">
       <button type="button" class="aabl-cancel" id="aablCancel">Huỷ</button>
@@ -939,7 +958,7 @@
       }
     }
     function close(){ov.classList.remove("open");pin.value="";msg.textContent="";}
-    btn.onclick=function(){ if(authed()){ localStorage.removeItem(KEY); try{ sessionStorage.removeItem("aab_pin"); }catch(_){} localStorage.removeItem(TKEY); try{ localStorage.removeItem("aab_partner"); }catch(_){} render(); window.runHealthCheck && window.runHealthCheck(); } else { ov.classList.add("open"); setTimeout(function(){pin.focus();},50); } };
+    btn.onclick=function(){ if(authed()){ localStorage.removeItem(KEY); try{ localStorage.removeItem("aab_pin"); }catch(_){} localStorage.removeItem(TKEY); try{ localStorage.removeItem("aab_partner"); }catch(_){} render(); window.runHealthCheck && window.runHealthCheck(); } else { ov.classList.add("open"); setTimeout(function(){pin.focus();},50); } };
     cancel.onclick=close;
     ov.addEventListener("click",function(e){ if(e.target===ov) close(); });
     pin.addEventListener("keydown",function(e){ if(e.key==="Enter") ok.click(); });
@@ -951,11 +970,20 @@
         var r=await fetch(API+"/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({pin:v})});
         var d=await r.json();
         if(!r.ok||!d.ok) throw new Error(d.error||"Sai mã PIN");
-        localStorage.setItem(KEY,"1"); localStorage.setItem(TKEY, d.tier||"build"); try{ sessionStorage.setItem("aab_pin", v); }catch(_){}
+        localStorage.setItem(KEY,"1"); localStorage.setItem(TKEY, d.tier||"build"); try{ localStorage.setItem("aab_pin", v); }catch(_){}
         try{ localStorage.setItem("aab_partner", d.partner||""); }catch(_){}
         render(); close(); window.runHealthCheck && window.runHealthCheck();
       }catch(e){ msg.style.color="#ef4444"; msg.textContent="❌ "+e.message; }
       finally{ ok.disabled=false; }
+    };
+    /* LOGIN_UI_V2: nút con mắt xem lại mã PIN đã gõ. */
+    var eye=document.getElementById("aablEye");
+    if(eye) eye.onclick=function(){
+      var hien = pin.type==="text";
+      pin.type = hien ? "password" : "text";
+      eye.innerHTML='<i data-lucide="'+(hien?"eye":"eye-off")+'"></i>';
+      if(window.lucide&&lucide.createIcons) try{lucide.createIcons();}catch(_){}
+      pin.focus();
     };
     render();
   })();</script>
@@ -2496,7 +2524,7 @@
 })();</script>
 <script>/* PIN_ONCE — đăng nhập 1 lần, chức năng chỉ hỏi xác nhận */
 (function(){
-  function pin(){ try{ return sessionStorage.getItem("aab_pin")||""; }catch(e){ return ""; } }
+  function pin(){ try{ return localStorage.getItem("aab_pin")||""; }catch(e){ return ""; } }
   function apply(root){
     var p=pin(); if(!p) return;
     (root||document).querySelectorAll('input[type="password"]').forEach(function(i){
