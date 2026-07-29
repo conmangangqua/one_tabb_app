@@ -2548,5 +2548,44 @@
   }
   if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",start); else start();
 })();</script>
+<script>/* PIN_CONFIRM — mọi hành động dùng PIN phải xác nhận trước khi gửi */
+(function(){
+  var TEN = {
+    "/api/gendesc":       "nhắc bot gen Store description",
+    "/api/genlegal":      "nhắc bot gen Privacy + Terms",
+    "/api/gendatasafety": "nhắc bot gen Data safety CSV",
+    "/api/gendocs":       "nhắc bot gen tài liệu BA",
+    "/api/build":         "build bản mới",
+    "/api/rename":        "đổi tên app",
+    "/api/store":         "cập nhật link Store",
+    "/api/configsave":    "ghi cấu hình",
+    "/api/rcsave":        "ghi Remote Config",
+    "/api/sdkadd":        "thêm SDK",
+    "/api/releasekit":    "tải dữ liệu gói phát hành"
+  };
+  // Đọc rồi gửi lại thì không cần hỏi (không đổi gì trên hệ thống).
+  var KHONG_HOI = { "/api/releasekit": 1, "/api/auth": 1 };
+  var of = window.fetch;
+  window.fetch = function(url, opt){
+    try{
+      var u = typeof url === "string" ? url : (url && url.url) || "";
+      if (opt && String(opt.method||"").toUpperCase() === "POST" && u.indexOf("/api/") > -1){
+        var path = u.replace(/^https?:\/\/[^\/]+/, "").split("?")[0];
+        if (!KHONG_HOI[path]){
+          var b = null;
+          try{ b = JSON.parse(opt.body || "{}"); }catch(e){}
+          if (b && b.pin){
+            var nhan = TEN[path] || path.replace("/api/","");
+            var app  = b.app_id ? ' cho "' + b.app_id + '"' : "";
+            if (!window.confirm("Xác nhận " + nhan + app + "?")){
+              return Promise.reject(new Error("Đã huỷ"));
+            }
+          }
+        }
+      }
+    }catch(e){ /* lỗi trong lớp chặn không được cản request */ }
+    return of.apply(this, arguments);
+  };
+})();</script>
 </body>
 </html>
