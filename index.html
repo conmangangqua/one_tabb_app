@@ -939,7 +939,7 @@
       }
     }
     function close(){ov.classList.remove("open");pin.value="";msg.textContent="";}
-    btn.onclick=function(){ if(authed()){ localStorage.removeItem(KEY); localStorage.removeItem(TKEY); try{ localStorage.removeItem("aab_partner"); }catch(_){} render(); window.runHealthCheck && window.runHealthCheck(); } else { ov.classList.add("open"); setTimeout(function(){pin.focus();},50); } };
+    btn.onclick=function(){ if(authed()){ localStorage.removeItem(KEY); try{ sessionStorage.removeItem("aab_pin"); }catch(_){} localStorage.removeItem(TKEY); try{ localStorage.removeItem("aab_partner"); }catch(_){} render(); window.runHealthCheck && window.runHealthCheck(); } else { ov.classList.add("open"); setTimeout(function(){pin.focus();},50); } };
     cancel.onclick=close;
     ov.addEventListener("click",function(e){ if(e.target===ov) close(); });
     pin.addEventListener("keydown",function(e){ if(e.key==="Enter") ok.click(); });
@@ -951,7 +951,7 @@
         var r=await fetch(API+"/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({pin:v})});
         var d=await r.json();
         if(!r.ok||!d.ok) throw new Error(d.error||"Sai mã PIN");
-        localStorage.setItem(KEY,"1"); localStorage.setItem(TKEY, d.tier||"build");
+        localStorage.setItem(KEY,"1"); localStorage.setItem(TKEY, d.tier||"build"); try{ sessionStorage.setItem("aab_pin", v); }catch(_){}
         try{ localStorage.setItem("aab_partner", d.partner||""); }catch(_){}
         render(); close(); window.runHealthCheck && window.runHealthCheck();
       }catch(e){ msg.style.color="#ef4444"; msg.textContent="❌ "+e.message; }
@@ -2493,6 +2493,32 @@
   }
   if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",start);
   else start();
+})();</script>
+<script>/* PIN_ONCE — đăng nhập 1 lần, chức năng chỉ hỏi xác nhận */
+(function(){
+  function pin(){ try{ return sessionStorage.getItem("aab_pin")||""; }catch(e){ return ""; } }
+  function apply(root){
+    var p=pin(); if(!p) return;
+    (root||document).querySelectorAll('input[type="password"]').forEach(function(i){
+      if(i.id==="aablPin") return;              // ô đăng nhập: giữ nguyên
+      if(i.dataset.pinOnce) { i.value=p; return; }
+      i.dataset.pinOnce="1"; i.value=p;
+      i.style.display="none";
+      // ẩn nhãn ngay trước ô (thường là <label>Nhập PIN</label>)
+      var prev=i.previousElementSibling;
+      if(prev && (prev.tagName==="LABEL" || /pin/i.test(prev.textContent||""))) prev.style.display="none";
+    });
+  }
+  // Popup dựng sẵn trong HTML, nhưng vài chỗ chèn động → quan sát cả body.
+  function start(){
+    apply(document);
+    new MutationObserver(function(){ apply(document); })
+      .observe(document.body,{childList:true,subtree:true});
+    // sau khi đăng nhập xong mới có PIN → áp lại
+    window.addEventListener("storage",function(){ apply(document); });
+    document.addEventListener("click",function(){ setTimeout(function(){apply(document);},60); },true);
+  }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",start); else start();
 })();</script>
 </body>
 </html>
