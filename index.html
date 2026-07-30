@@ -1183,6 +1183,12 @@
       var meta=limit?(" <span style=\"font-size:.7rem;color:"+(len>limit?"#ef4444":"#94a3b8")+";font-weight:600\">"+len+"/"+limit+"</span>"):"";
       var safeLabel=escapeHtml(label);
       var key=label.toLowerCase().replace(/[^a-z0-9]+/g,"_");
+      /* URL policy suy từ slug (trang sống nhưng chưa ghi vào hồ sơ) — nói rõ để
+         đừng tưởng hồ sơ đã đầy đủ. API trả danh sách qua inferred_fields. */
+      if(window.__vdSuyRa && window.__vdSuyRa.indexOf(key.replace(/_url$/,"")+"_url") > -1){
+        meta += ' <span style="font-size:.66rem;color:#92400e;background:#fffbeb;border:1px solid #fde68a;'
+             +  'padding:1px 6px;border-radius:6px;font-weight:700">suy từ slug</span>';
+      }
       var trimmedVal=(value||"").trim();
       var isUrl=/^https?:\/\//i.test(trimmedVal);
       var safeVal;
@@ -1255,6 +1261,11 @@
         if(!(r.key in f) && r.key!=="short_description" && r.key!=="full_description") return;
         html+=renderRow(r.label, f[r.key]||"", r.limit||0, s[r.key]);
       });
+      if(window.__vdThieuDesc){
+        html = '<div class="box" style="background:#fffbeb;border:1px solid #fde68a;color:#92400e;font-weight:600">'
+             + '⚠️ Chưa có Store description (title / short / long) — bấm <b>Gen lại</b> để tạo. '
+             + 'Các mục dưới đây là phần đã có.</div>' + html;
+      }
       fieldsEl.innerHTML=html||"(Chưa có dữ liệu)";
       attachCopy();
       updateLegalBtn(d);
@@ -1308,11 +1319,22 @@
           d=await r.json();
           if(!r.ok) throw new Error(d.error||"Không tải được");
         }
-        if(!d.exists){
+        /* Sếp 2026-07-30: "ví dụ ko có description mà chỉ có policy thì vẫn hiển
+           thị empty hết ????" — đúng, nhánh này return sớm nên bỏ luôn cả
+           Privacy/Terms dù có (ca bloom_drama/ember_drama: trang policy sống sẵn
+           theo slug, chỉ thiếu hồ sơ description). Nay chỉ báo empty khi THẬT SỰ
+           không có field nào; còn lại vẫn render những gì có, kèm dòng nhắc. */
+        var _f = d.fields || {};
+        var _coGi = Object.keys(_f).some(function(k){
+          return k !== "short" && k !== "long" && String(_f[k] || "").trim();
+        });
+        if(!d.exists && !_coGi){
           platEl.textContent=(d.platform==="appstore"?"🍎 Apple App Store":"🤖 Google Play");
           fieldsEl.innerHTML="<div class=\"box\">(Chưa có — bấm Gen lại để tạo)</div>";
           return;
         }
+        window.__vdThieuDesc = !d.exists;
+        window.__vdSuyRa = d.inferred_fields || [];
         if(d.platform==="appstore") renderAppstore(d);
         else renderGoogle(d);
       }catch(e){ var _m=(e&&(e.name==="TimeoutError"||e.name==="AbortError"))?"Tải quá lâu (GitLab chậm/nghẽn) — bấm Gen lại thử lại.":(e.message||"Lỗi tải mô tả"); fieldsEl.innerHTML="<div class=\"box\">⚠️ "+escapeHtml(_m)+"</div>"; }
