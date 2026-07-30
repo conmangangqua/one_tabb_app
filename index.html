@@ -2571,6 +2571,22 @@
 <script>/* PIN_ONCE — đăng nhập 1 lần, chức năng chỉ hỏi xác nhận */
 (function(){
   function pin(){ try{ return localStorage.getItem("aab_pin")||""; }catch(e){ return ""; } }
+  /* Session đăng nhập TRƯỚC khi có PIN_ONCE chỉ lưu aab_authed, không có
+     aab_pin → không có gì để tự điền nên ô PIN vẫn hiện ở mọi modal (Sếp báo
+     2026-07-30, modal Build). Xử lý: bỏ trạng thái đăng nhập cũ đúng MỘT lần để
+     đăng nhập lại, từ đó về sau chỉ còn popup xác nhận. */
+  function vaLaiPhienCu(){
+    try{
+      if(localStorage.getItem("aab_authed")==="1" && !localStorage.getItem("aab_pin")
+         && !sessionStorage.getItem("pin_once_migrated")){
+        sessionStorage.setItem("pin_once_migrated","1");
+        localStorage.removeItem("aab_authed"); localStorage.removeItem("aab_tier");
+        document.body.classList.remove("aab-authed","partner-authed");
+        return true;
+      }
+    }catch(e){}
+    return false;
+  }
   function apply(root){
     var p=pin(); if(!p) return;
     (root||document).querySelectorAll('input[type="password"]').forEach(function(i){
@@ -2585,6 +2601,7 @@
   }
   // Popup dựng sẵn trong HTML, nhưng vài chỗ chèn động → quan sát cả body.
   function start(){
+    vaLaiPhienCu();
     apply(document);
     new MutationObserver(function(){ apply(document); })
       .observe(document.body,{childList:true,subtree:true});
