@@ -380,7 +380,7 @@
           <div class="badge-row"><span class="badge ${isIOS ? 'ios' : 'android'}"><i data-lucide="${isIOS ? 'apple' : 'smartphone'}" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>${app.platform || 'Android'}</span>${app.category ? `<span class="pill-category cat-src-${app.category_source||'store'}" title="Nguồn category: ${app.category_source==='override'?'Override tay':app.category_source==='ai'?'AI phân loại':app.category_source==='gitlab'?'Fallback subgroup':'Store category'}"><i data-lucide="tag"></i>${app.category}</span>` : ''}<span class="prod-ads-badge" data-prod-ads="loading" style="display:none"></span><span class="health-badge" data-health="loading" style="display:none"></span></div>
           <h2 class="app-title">${app.name}</h2><p class="app-desc">${app.description || ''}</p>
           <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev"><i class="btn-ic" data-lucide="wrench"></i>${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live"><i class="btn-ic" data-lucide="rocket"></i>${stack('Live Build','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full"><i class="btn-ic" data-lucide="package"></i>${stack('Download AAB','aab')}</a>` : ""} ${storeUrl ? `<a href="${storeUrl}" target="_blank" rel="noopener" class="btn btn-store"><i class="btn-ic" data-lucide="shopping-bag"></i><span class="btn-stack">View on Store${app.store_version ? `<span class="ver" data-store-ver>${app.store_version}</span>` : `<span class="ver" data-store-ver style="display:none"></span>`}</span></a>` : ""}
-          <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')"><i class="btn-ic" data-lucide="hammer"></i><span class="btn-stack">${buildLabel}</span></button>${noAdsTrigger}${noAdsDl}<button type="button" class="btn btn-gd" onclick="openViewDesc('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="file-text"></i><span class="btn-stack">Hồ sơ Store</span></button><!-- DS_TAKES_RN_SLOT: Data Safety đứng đúng ô cũ của Release Notes; render sẵn trong markup nên không cần injectButtons() chèn muộn (thủ phạm giật card). --><button type="button" class="btn btn-ds" onclick="openDataSafety('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="shield-check"></i><span class="btn-stack">Data Safety</span></button><button type="button" class="btn btn-as" onclick="dlAssets('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)"><i class="btn-ic" data-lucide="download"></i><span class="btn-stack">Assets</span></button><button type="button" class="btn btn-ss" onclick="openShots('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="image"></i><span class="btn-stack">Screenshots</span></button><button type="button" class="btn btn-cfg" onclick="openConfig('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="settings-2"></i><span class="btn-stack">Kiểm tra cấu hình</span></button></div><div class="store-meta">${app.storeUpdated ? `<span class="store-upd"><span class="icon">📅</span>Updated on ${app.storeUpdated}</span>` : ""}</div>`;
+          <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')"><i class="btn-ic" data-lucide="hammer"></i><span class="btn-stack">${buildLabel}</span></button>${noAdsTrigger}${noAdsDl}<button type="button" class="btn btn-gd" onclick="openViewDesc('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="file-text"></i><span class="btn-stack">Hồ sơ Store</span></button><!-- DS_TAKES_RN_SLOT: Data Safety đứng đúng ô cũ của Release Notes; render sẵn trong markup nên không cần injectButtons() chèn muộn (thủ phạm giật card). --><button type="button" class="btn btn-ds" onclick="openDataSafety('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="shield-check"></i><span class="btn-stack">Data Safety</span></button><button type="button" class="btn btn-as" onclick="dlAssets('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)"><i class="btn-ic" data-lucide="download"></i><span class="btn-stack">Assets</span></button><button type="button" class="btn btn-ss" onclick="openShots('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="image"></i><span class="btn-stack">Screenshots</span></button><button type="button" class="btn btn-cfg" onclick="openConfig('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="settings-2"></i><span class="btn-stack">Kiểm tra cấu hình</span></button></div><div class="store-meta">${app.storeUpdated ? `<span class="store-upd"><span class="icon">📅</span>Cập nhật Store: ${app.storeUpdated}</span>` : ""}</div>`;
         container.appendChild(card);
       });
       /* INJECT_SYNC: chèn nút ngay trong cùng lượt vẽ để card không đổi kích thước sau đó. */
@@ -2672,5 +2672,185 @@
     return of.apply(this, arguments);
   };
 })();</script>
+<script>/* I18N_HUB */
+/* I18N_HUB (Sếp 2026-07-30): "web app tiếng anh tiếng việt lẫn lộn??? làm đa ngữ
+   rồi thêm cái chọn ngôn ngữ ở góc phải".
+
+   Cách làm: dịch SAU render theo bảng "chuỗi gốc → {vi,en}", khớp CHÍNH XÁC cả
+   text node (đã trim). Không đụng dữ liệu app (tên app, mô tả, URL) vì chúng
+   không nằm trong bảng. Nhờ vậy không phải sửa hàng trăm chỗ nối chuỗi trong JS
+   — thêm nhãn mới chỉ cần thêm 1 dòng vào bảng.
+   Mặc định VI. Lựa chọn lưu localStorage.hub_lang. */
+(function () {
+  var T = {
+    // ── nhãn nút trên card
+    'Assets':               ['Tài nguyên', 'Assets'],
+    'Screenshots':          ['Ảnh chụp màn hình', 'Screenshots'],
+    'Data Safety':          ['An toàn dữ liệu', 'Data Safety'],
+    'Dev Build':            ['Bản Dev', 'Dev Build'],
+    'Live Build':           ['Bản Live', 'Live Build'],
+    'Download AAB':         ['Tải AAB', 'Download AAB'],
+    'Build AAB':            ['Build AAB', 'Build AAB'],
+    'Build No-Ads':         ['Build bản No-Ads', 'Build No-Ads'],
+    'Tải No-Ads':           ['Tải bản No-Ads', 'Download No-Ads'],
+    'View on Store':        ['Xem trên Store', 'View on Store'],
+    'Hồ sơ Store':          ['Hồ sơ Store', 'Store Listing'],
+    'Gói phát hành':        ['Gói phát hành', 'Release Kit'],
+    'Kiểm tra cấu hình':    ['Kiểm tra cấu hình', 'Config Check'],
+    'BA + Tests':           ['BA + Test case', 'BA + Tests'],
+    'View Flow':            ['Xem luồng', 'View Flow'],
+    'Release Notes':        ['Ghi chú phát hành', 'Release Notes'],
+    'Add Store Link':       ['Thêm link Store', 'Add Store Link'],
+    'Thêm link Store':      ['Thêm link Store', 'Add Store Link'],
+    // ── đăng nhập / phiên
+    'Đăng nhập':            ['Đăng nhập', 'Sign in'],
+    'Đăng xuất':            ['Đăng xuất', 'Sign out'],
+    'Huỷ':                  ['Huỷ', 'Cancel'],
+    'Hủy':                  ['Huỷ', 'Cancel'],
+    'Đóng':                 ['Đóng', 'Close'],
+    'Lưu':                  ['Lưu', 'Save'],
+    'Sửa':                  ['Sửa', 'Edit'],
+    'Copy':                 ['Copy', 'Copy'],
+    'Mã PIN':               ['Mã PIN', 'PIN code'],
+    'Nhập PIN':             ['Nhập PIN', 'Enter PIN'],
+    'Nhập mã PIN':          ['Nhập mã PIN', 'Enter PIN code'],
+    'Nhập mã PIN để mở các chức năng quản trị':
+      ['Nhập mã PIN để mở các chức năng quản trị', 'Enter your PIN to unlock admin features'],
+    'ADMIN':                ['ADMIN', 'ADMIN'],
+    'PARTNER':              ['PARTNER', 'PARTNER'],
+    // ── tìm kiếm / lọc
+    'Search for apps...':   ['Tìm app...', 'Search for apps...'],
+    'Tất cả':               ['Tất cả', 'All'],
+    // ── modal build
+    'Build':                ['Build', 'Build'],
+    'Build bản No-Ads':     ['Build bản No-Ads', 'Build No-Ads variant'],
+    'Version Name':         ['Tên phiên bản', 'Version Name'],
+    'Version Code':         ['Mã phiên bản', 'Version Code'],
+    'Đang lấy version hiện tại…': ['Đang lấy version hiện tại…', 'Fetching current version…'],
+    // ── nhãn field Hồ sơ Store
+    'Title':                ['Tiêu đề', 'Title'],
+    'Short description':    ['Mô tả ngắn', 'Short description'],
+    'Long description':     ['Mô tả dài', 'Long description'],
+    'Release notes':        ['Ghi chú phát hành', 'Release notes'],
+    'Category':             ['Danh mục', 'Category'],
+    'Content Rating':       ['Phân loại nội dung', 'Content Rating'],
+    'Privacy URL':          ['URL Chính sách', 'Privacy URL'],
+    'Terms URL':            ['URL Điều khoản', 'Terms URL'],
+    'Copyright':            ['Bản quyền', 'Copyright'],
+    'App Name':             ['Tên app', 'App Name'],
+    'Keywords':             ['Từ khoá', 'Keywords'],
+    'Subtitle':             ['Phụ đề', 'Subtitle'],
+    "What's New":           ['Có gì mới', "What's New"],
+    'Promotional Text':     ['Text quảng bá', 'Promotional Text'],
+    'Description':          ['Mô tả', 'Description'],
+    'Store Description':    ['Mô tả Store', 'Store Description'],
+    // ── Gói phát hành
+    'Ảnh':                  ['Ảnh', 'Images'],
+    'Listing':              ['Listing', 'Listing'],
+    'Data safety':          ['An toàn dữ liệu', 'Data safety'],
+    'Mô tả':                ['Mô tả', 'Description'],
+    'AAB':                  ['AAB', 'AAB'],
+    'Cập nhật từ Figma':    ['Cập nhật từ Figma', 'Update from Figma'],
+    // ── Data safety
+    'Data type':            ['Loại dữ liệu', 'Data type'],
+    'Thu thập':             ['Thu thập', 'Collected'],
+    'Chia sẻ':              ['Chia sẻ', 'Shared'],
+    'Mục đích thu thập':    ['Mục đích thu thập', 'Collection purposes'],
+    'Mục đích chia sẻ':     ['Mục đích chia sẻ', 'Sharing purposes'],
+    'Người dùng tắt được?': ['Người dùng tắt được?', 'User can opt out?'],
+    'Lý do (evidence)':     ['Lý do (evidence)', 'Reason (evidence)'],
+    'Bắt buộc':             ['Bắt buộc', 'Required'],
+    'Tự chọn':              ['Tự chọn', 'Optional'],
+    'Có thu thập dữ liệu':  ['Có thu thập dữ liệu', 'Collects personal data'],
+    'Mã hoá khi truyền':    ['Mã hoá khi truyền', 'Encrypted in transit'],
+    'Tạo tài khoản':        ['Tạo tài khoản', 'Account creation'],
+    'Xoá dữ liệu':          ['Xoá dữ liệu', 'Data deletion'],
+    // ── trạng thái chung
+    'Đang tải…':            ['Đang tải…', 'Loading…'],
+    'Đang tải...':          ['Đang tải...', 'Loading...'],
+    'Cập nhật Store':       ['Cập nhật Store', 'Store updated']
+  };
+
+  function lang() {
+    try { return localStorage.getItem('hub_lang') || 'vi'; } catch (e) { return 'vi'; }
+  }
+  function tra(s) {
+    var k = (s || '').trim();
+    var v = T[k];
+    if (!v) return null;
+    var moi = lang() === 'en' ? v[1] : v[0];
+    return moi === k ? null : moi;
+  }
+
+  function dich(root) {
+    var w = document.createTreeWalker(root || document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (n) {
+        var p = n.parentElement;
+        if (!p) return NodeFilter.FILTER_REJECT;
+        var tag = p.tagName;
+        if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'PRE' || tag === 'TEXTAREA') return NodeFilter.FILTER_REJECT;
+        return n.nodeValue && n.nodeValue.trim().length > 1 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+      }
+    });
+    var ds = [], n;
+    while ((n = w.nextNode())) ds.push(n);
+    ds.forEach(function (t) {
+      var goc = t.__i18nGoc || t.nodeValue;
+      var moi = tra(goc);
+      if (moi) { t.__i18nGoc = goc; t.nodeValue = t.nodeValue.replace(goc.trim(), moi); }
+      else if (t.__i18nGoc) { t.nodeValue = t.__i18nGoc; }
+    });
+    (root || document).querySelectorAll('input[placeholder],[title]').forEach(function (e) {
+      ['placeholder', 'title'].forEach(function (a) {
+        var v = e.getAttribute(a); if (!v) return;
+        var goc = e.dataset['i18n' + a] || v;
+        var moi = tra(goc);
+        if (moi) { e.dataset['i18n' + a] = goc; e.setAttribute(a, moi); }
+        else if (e.dataset['i18n' + a]) { e.setAttribute(a, e.dataset['i18n' + a]); }
+      });
+    });
+  }
+
+  function nutChon() {
+    if (document.getElementById('langSw')) return;
+    var d = document.createElement('div');
+    d.id = 'langSw';
+    d.innerHTML = '<button type="button" data-l="vi">VI</button><button type="button" data-l="en">EN</button>';
+    document.body.appendChild(d);
+    var css = document.createElement('style');
+    css.textContent = '#langSw{position:fixed;top:14px;right:16px;z-index:100010;display:flex;gap:4px;'
+      + 'background:var(--card-bg,#fff);border:1.5px solid var(--glass-border,#e2e8f0);border-radius:999px;padding:3px;'
+      + 'box-shadow:0 6px 18px rgba(0,0,0,.12)}'
+      + '#langSw button{border:none;background:none;cursor:pointer;font-family:inherit;font-weight:800;font-size:.74rem;'
+      + 'padding:5px 11px;border-radius:999px;color:var(--text-muted,#64748b)}'
+      + '#langSw button.on{background:var(--primary-strong,var(--primary,#334155));color:#fff}';
+    document.head.appendChild(css);
+    d.querySelectorAll('button').forEach(function (b) {
+      b.onclick = function () {
+        try { localStorage.setItem('hub_lang', b.dataset.l); } catch (e) {}
+        danhDau(); dich(document);
+      };
+    });
+    danhDau();
+  }
+  function danhDau() {
+    var l = lang();
+    document.querySelectorAll('#langSw button').forEach(function (b) {
+      b.classList.toggle('on', b.dataset.l === l);
+    });
+  }
+
+  function start() {
+    nutChon(); dich(document);
+    var hen = null;
+    new MutationObserver(function () {
+      if (hen) return;
+      hen = setTimeout(function () { hen = null; dich(document); }, 120);
+    }).observe(document.body, { childList: true, subtree: true });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
+})();
+</script>
 </body>
 </html>
