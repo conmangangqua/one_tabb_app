@@ -2665,8 +2665,44 @@
   };
   // Đọc rồi gửi lại thì không cần hỏi (không đổi gì trên hệ thống).
   var KHONG_HOI = { "/api/releasekit": 1, "/api/auth": 1 };
+  /* CONFIRM_UI: hộp xác nhận dựng trong trang — cùng token màu/bo góc/shadow với
+     các modal khác, dịch được qua i18n, đóng bằng Esc hoặc bấm nền.
+     window.confirm() không làm được cả ba việc đó. */
+  function hoiXacNhan(loi){
+    return new Promise(function(resolve){
+      var ov = document.createElement("div");
+      ov.id = "cfmOv";
+      ov.innerHTML =
+        '<div id="cfmMd" role="dialog" aria-modal="true">' +
+          '<h3>Xác nhận</h3>' +
+          '<p id="cfmMsg"></p>' +
+          '<div class="cfm-act">' +
+            '<button type="button" class="cfm-huy">Huỷ</button>' +
+            '<button type="button" class="cfm-ok">Đồng ý</button>' +
+          '</div>' +
+        '</div>';
+      ov.querySelector("#cfmMsg").textContent = loi;
+      document.body.appendChild(ov);
+      var xong = function(kq){
+        document.removeEventListener("keydown", phim);
+        ov.remove(); resolve(kq);
+      };
+      var phim = function(e){
+        if (e.key === "Escape") xong(false);
+        if (e.key === "Enter") xong(true);
+      };
+      document.addEventListener("keydown", phim);
+      ov.addEventListener("click", function(e){ if (e.target === ov) xong(false); });
+      ov.querySelector(".cfm-huy").onclick = function(){ xong(false); };
+      ov.querySelector(".cfm-ok").onclick  = function(){ xong(true); };
+      var md = ov.querySelector("#cfmMd");
+      md.setAttribute("tabindex", "-1");
+      setTimeout(function(){ md.focus({preventScroll:true}); }, 30);
+    });
+  }
   var of = window.fetch;
   window.fetch = function(url, opt){
+    var args = arguments;
     try{
       var u = typeof url === "string" ? url : (url && url.url) || "";
       if (opt && String(opt.method||"").toUpperCase() === "POST" && u.indexOf("/api/") > -1){
@@ -2677,9 +2713,12 @@
           if (b && b.pin){
             var nhan = TEN[path] || path.replace("/api/","");
             var app  = b.app_id ? ' cho "' + b.app_id + '"' : "";
-            if (!window.confirm("Xác nhận " + nhan + app + "?")){
-              return Promise.reject(new Error("Đã huỷ"));
-            }
+            /* Dialog trong hệ thiết kế thay cho window.confirm() mặc định
+               của trình duyệt (Sếp 2026-07-30: "giao diện đéo gì đây"). */
+            return hoiXacNhan("Xác nhận " + nhan + app + "?").then(function(dongY){
+              if (!dongY) return Promise.reject(new Error("Đã huỷ"));
+              return of.apply(window, args);
+            });
           }
         }
       }
@@ -2687,6 +2726,24 @@
     return of.apply(this, arguments);
   };
 })();</script>
+<style>/* CONFIRM_UI */
+  #cfmOv{position:fixed;inset:0;background:rgba(2,6,23,.55);backdrop-filter:blur(4px);
+    z-index:100020;display:flex;align-items:center;justify-content:center;padding:20px}
+  #cfmMd{background:#fff;color:#0f172a;border-radius:20px;padding:24px 24px 20px;width:100%;
+    max-width:420px;box-shadow:0 30px 80px rgba(0,0,0,.35);font-family:inherit}
+  #cfmMd h3{margin:0 0 8px;font-size:1.08rem;font-weight:800}
+  #cfmMd p{margin:0;font-size:.9rem;line-height:1.55;color:#475569;word-break:break-word}
+  #cfmMd .cfm-act{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+  #cfmMd .cfm-act button{min-width:104px;padding:11px 18px;border-radius:12px;font-weight:800;
+    font-size:.88rem;cursor:pointer;font-family:inherit;border:1px solid transparent}
+  #cfmMd .cfm-huy{background:#f1f5f9;color:#334155;border-color:#e2e8f0}
+  #cfmMd .cfm-huy:hover{background:#e2e8f0}
+  #cfmMd .cfm-ok{background:var(--primary-strong,var(--primary,#334155));color:#fff}
+  #cfmMd .cfm-ok:hover{background:color-mix(in srgb,var(--primary-strong,var(--primary,#334155)) 86%,#000)}
+  #cfmMd:focus{outline:none}
+  #cfmMd .cfm-ok:focus-visible,#cfmMd .cfm-huy:focus-visible{outline:3px solid
+    color-mix(in srgb,var(--primary,#334155) 45%,#fff);outline-offset:2px}
+</style>
 <script>/* I18N_HUB */
 /* I18N_HUB (Sếp 2026-07-30): "web app tiếng anh tiếng việt lẫn lộn??? làm đa ngữ
    rồi thêm cái chọn ngôn ngữ ở góc phải".
@@ -2742,6 +2799,11 @@
        'Derived from real source (manifest + SDKs in pubspec/gradle). Import in Play Console → App content → Data safety → Import from a CSV file.'],
     'Yes':                  ['Có', 'Yes'],
     'No':                   ['Không', 'No'],
+    'Xác nhận':             ['Xác nhận', 'Confirm'],
+    'Đồng ý':               ['Đồng ý', 'Confirm'],
+    'Đã huỷ':               ['Đã huỷ', 'Cancelled'],
+    'Data Safety CSV':      ['Data Safety CSV', 'Data Safety CSV'],
+    'Close':                ['Đóng', 'Close'],
     // ── nhãn nút trên card
     'Assets':               ['Tài nguyên', 'Assets'],
     'Screenshots':          ['Ảnh chụp màn hình', 'Screenshots'],
