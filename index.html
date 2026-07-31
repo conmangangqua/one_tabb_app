@@ -722,6 +722,18 @@
     // Normalize slug bằng strip-non-alphanum để khớp tên có thể khác underscore/dash.
     // Cache 24h trong localStorage.
     async function enrichCardDescriptions(){
+      /* Nguồn 0 — desc_i18n.json commit sẵn trong repo hub (Sếp 2026-07-31:
+         "tại sao ko làm job translate ở app hub luôn"). File này chứa cả bản gốc
+         lẫn bản dịch, nằm cùng origin nên đi qua CDN: app nào có trong đó thì
+         KHÔNG phải gọi /api/description nữa — hub 36 app trước đây bắn 36 request
+         lúc mở trang, giờ còn 1. App mới chưa kịp có trong file vẫn rơi xuống
+         nguồn 1/2 như cũ nên không bao giờ trống. */
+      try {
+        if (!window.__descI18n) {
+          const r0 = await fetch("./desc_i18n.json?t=" + Date.now(), {cache:"no-store"});
+          window.__descI18n = r0.ok ? await r0.json() : {};
+        }
+      } catch(_) { window.__descI18n = {}; }
       const CACHE_KEY = "hubDescCache_v4";
       const CACHE_TTL = 1*3600*1000;
       let cache = {};
@@ -756,6 +768,11 @@
       document.querySelectorAll(".app-card").forEach(card => {
         const id = card.dataset.appId; if(!id) return;
         const el = card.querySelector(".app-desc"); if(!el) return;
+        const sanCo = (window.__descI18n || {})[id];
+        if (sanCo && sanCo.en){
+          if (!el.textContent.trim()) el.textContent = sanCo.en;
+          return;                       // có sẵn trong repo → khỏi gọi API
+        }
         const entry = cache[id];
         if (entry && entry.s && entry.t > now - CACHE_TTL){
           if (entry.s && !el.textContent.trim()) el.textContent = entry.s;
@@ -3462,6 +3479,15 @@
       var gocLaVi = CO_DAU.test(g);
       if ((l === "vi" && gocLaVi) || (l !== "vi" && !gocLaVi)){
         if (e.textContent.trim() !== g) { e.textContent = g; e.removeAttribute("title"); }
+        return;
+      }
+      /* Bản dịch commit sẵn trong repo (desc_i18n.json) — dùng ngay, khỏi gọi
+         API. Chỉ app MỚI chưa kịp có trong file mới phải gọi. */
+      var card = e.closest && e.closest("[data-app-id]");
+      var idApp = card && card.getAttribute("data-app-id");
+      var san = idApp && (window.__descI18n || {})[idApp];
+      if (san && san[l]){
+        if (e.textContent.trim() !== san[l]) { e.textContent = san[l]; e.title = san.en || g; }
         return;
       }
       var c = lay(l, g);
