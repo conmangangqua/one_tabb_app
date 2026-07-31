@@ -2604,13 +2604,17 @@
       tier   = localStorage.getItem("aab_tier")||"";
       partner= localStorage.getItem("aab_partner")||"";
     }catch(e){}
-    if(!authed){ w.classList.remove("on"); b.className=""; b.textContent=""; return; }
+    /* Chỉ ghi khi khác — xem ghi chú cùng lỗi ở khối i18n. */
+    function dat(el, cls, txt){
+      if (el.className !== cls) el.className = cls;
+      if (el.textContent !== txt) el.textContent = txt;
+    }
+    if(!authed){ w.classList.remove("on"); dat(b, "", ""); return; }
     // Hub chỉ có build PIN không lưu aab_tier ⇒ coi là Admin.
     if(tier==="partner"){
-      b.className="partner";
-      b.textContent="🤝 Partner"+(partner&&partner!=="legacy"?" · "+partner:"");
+      dat(b, "partner", "🤝 Partner"+(partner&&partner!=="legacy"?" · "+partner:""));
     }else{
-      b.className="admin"; b.textContent="🛡️ Admin";
+      dat(b, "admin", "🛡️ Admin");
     }
     w.classList.add("on");
   }
@@ -3311,16 +3315,24 @@
     ds.forEach(function (t) {
       var goc = t.__i18nGoc || t.nodeValue;
       var moi = tra(goc);
-      if (moi) { t.__i18nGoc = goc; t.nodeValue = t.nodeValue.replace(goc.trim(), moi); }
-      else if (t.__i18nGoc) { t.nodeValue = t.__i18nGoc; }
+      /* [BLOCKER] Chỉ ghi khi GIÁ TRỊ THỰC SỰ KHÁC. Gán lại y nguyên vẫn tính là
+         một mutation, nên observer khác (ROLE_BADGE) thấy → ghi lại → i18n thấy →
+         … hai bên nuôi nhau vô hạn và treo Safari (Sếp 2026-07-31, bisect t7→t9). */
+      if (moi) {
+        t.__i18nGoc = goc;
+        var moiVal = t.nodeValue.replace(goc.trim(), moi);
+        if (t.nodeValue !== moiVal) t.nodeValue = moiVal;
+      } else if (t.__i18nGoc && t.nodeValue !== t.__i18nGoc) {
+        t.nodeValue = t.__i18nGoc;
+      }
     });
     (root || document).querySelectorAll('input[placeholder],[title]').forEach(function (e) {
       ['placeholder', 'title'].forEach(function (a) {
         var v = e.getAttribute(a); if (!v) return;
         var goc = e.dataset['i18n' + a] || v;
         var moi = tra(goc);
-        if (moi) { e.dataset['i18n' + a] = goc; e.setAttribute(a, moi); }
-        else if (e.dataset['i18n' + a]) { e.setAttribute(a, e.dataset['i18n' + a]); }
+        if (moi) { e.dataset['i18n' + a] = goc; if (v !== moi) e.setAttribute(a, moi); }
+        else if (e.dataset['i18n' + a] && v !== e.dataset['i18n' + a]) { e.setAttribute(a, e.dataset['i18n' + a]); }
       });
     });
   }
