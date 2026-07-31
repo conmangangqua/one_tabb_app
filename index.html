@@ -2698,6 +2698,50 @@
    Mặc định VI. Lựa chọn lưu localStorage.hub_lang. */
 (function () {
   var T = {
+    // ── bổ sung sau lượt QUÉT thực tế: 35 chuỗi còn tiếng Việt khi ở chế độ EN
+    'Nhập PIN để Gen lại':  ['Nhập PIN để Gen lại', 'Enter PIN to regenerate'],
+    'Nhập PIN để tạo':      ['Nhập PIN để tạo', 'Enter PIN to create'],
+    'Nhập PIN để nhắc bot gen': ['Nhập PIN để nhắc bot gen', 'Enter PIN to ask the bot'],
+    'PIN để Gen':           ['PIN để Gen', 'PIN to generate'],
+    'PIN Partner để Save':  ['PIN Partner để Save', 'Partner PIN to save'],
+    '32-ký tự hex':         ['32-ký tự hex', '32 hex characters'],
+    '\u2713 đã thêm':          ['\u2713 đã thêm', '\u2713 added'],
+    '\u2717 chưa thêm':        ['\u2717 chưa thêm', '\u2717 not added'],
+    'Gen lại':              ['Gen lại', 'Regenerate'],
+    'Tạo lại từ commit':    ['Tạo lại từ commit', 'Rebuild from commits'],
+    'Tải tất cả':           ['Tải tất cả', 'Download all'],
+    'Tải':                  ['Tải', 'Download'],
+    'Tải AAB':              ['Tải AAB', 'Download AAB'],
+    'Tải CSV để import':    ['Tải CSV để import', 'Download CSV to import'],
+    'Nhắc bot gen Description':   ['Nhắc bot gen Description', 'Ask bot to generate Description'],
+    'Nhắc bot gen Privacy/Terms': ['Nhắc bot gen Privacy/Terms', 'Ask bot to generate Privacy/Terms'],
+    'Nhắc bot gen':         ['Nhắc bot gen', 'Ask bot to generate'],
+    'Lưu lên Firebase':     ['Lưu lên Firebase', 'Save to Firebase'],
+    'Cấu hình token':       ['Cấu hình token', 'Token config'],
+    'Kiểm tra SDK':         ['Kiểm tra SDK', 'SDK check'],
+    'Script quét source':   ['Script quét source', 'Source scan script'],
+    'App không cho tạo tài khoản': ['App không cho tạo tài khoản', 'App does not allow account creation'],
+    'Xem CSV':              ['Xem CSV', 'View CSV'],
+    'Tải CSV':              ['Tải CSV', 'Download CSV'],
+    'Đang lấy version hiện tại...': ['Đang lấy version hiện tại...', 'Fetching current version...'],
+    'Bản đã lưu — bấm "Tạo lại" để cập nhật theo commit mới':
+      ['Bản đã lưu — bấm "Tạo lại" để cập nhật theo commit mới',
+       'Saved version — press "Rebuild" to update from newer commits'],
+    'Suy ra từ source thật: permission trong AndroidManifest + SDK trong pubspec/gradle (đủ 782-dòng template Play Console), đã điền sẵn cả account-creation, data-deletion + URL, ephemeral và user-control. Vẫn là BẢN NHÁP — soát lại trước khi upload; riêng MASA security review, UPI badge và tài khoản tạo ngoài app thì Console hỏi thêm, tick theo thực tế.':
+      ['Suy ra từ source thật: permission trong AndroidManifest + SDK trong pubspec/gradle (đủ 782-dòng template Play Console), đã điền sẵn cả account-creation, data-deletion + URL, ephemeral và user-control. Vẫn là BẢN NHÁP — soát lại trước khi upload; riêng MASA security review, UPI badge và tài khoản tạo ngoài app thì Console hỏi thêm, tick theo thực tế.',
+       'Derived from real source: permissions in AndroidManifest + SDKs in pubspec/gradle (full 782-row Play Console template), with account-creation, data-deletion + URL, ephemeral and user-control already filled in. Still a DRAFT — review before uploading; MASA security review, UPI badge and accounts created outside the app are asked separately in Console, tick per reality.'],
+    'Dựng APK Dev đã tắt toàn bộ quảng cáo (phục vụ designer). Dùng version hiện tại, không cần nhập.':
+      ['Dựng APK Dev đã tắt toàn bộ quảng cáo (phục vụ designer). Dùng version hiện tại, không cần nhập.',
+       'Builds a Dev APK with all ads disabled (for designers). Uses the current version, no input needed.'],
+    'Nhắc bot gen Data Safety': ['Nhắc bot gen Data Safety', 'Ask bot to generate Data Safety'],
+    'Dựng APK Dev đã tắt toàn bộ quảng cáo (phục vụ designer). Dùng version hiện tại của repo.':
+      ['Dựng APK Dev đã tắt toàn bộ quảng cáo (phục vụ designer). Dùng version hiện tại của repo.',
+       'Builds a Dev APK with all ads disabled (for designers). Uses the repo current version.'],
+    'Suy ra từ source thật (manifest + SDK trong pubspec/gradle). Import vào Play Console → App content → Data safety → Import from a CSV file.':
+      ['Suy ra từ source thật (manifest + SDK trong pubspec/gradle). Import vào Play Console → App content → Data safety → Import from a CSV file.',
+       'Derived from real source (manifest + SDKs in pubspec/gradle). Import in Play Console → App content → Data safety → Import from a CSV file.'],
+    'Yes':                  ['Có', 'Yes'],
+    'No':                   ['Không', 'No'],
     // ── nhãn nút trên card
     'Assets':               ['Tài nguyên', 'Assets'],
     'Screenshots':          ['Ảnh chụp màn hình', 'Screenshots'],
@@ -2786,15 +2830,50 @@
     'Cập nhật Store':       ['Cập nhật Store', 'Store updated']
   };
 
+  /* Chuỗi GHÉP ĐỘNG (kèm tên app, thời gian, số lượng) không khớp nguyên chuỗi
+     được → dịch theo mẫu. Chỉ áp khi lang = en; về vi thì khôi phục bản gốc đã
+     lưu ở __i18nGoc. */
+  var MAU = [
+    [/^Gói phát hành — (.+)$/,                    'Release Kit — $1'],
+    [/^Hồ sơ Store — (.+)$/,                      'Store Listing — $1'],
+    [/^Cấu hình · (.+)$/,                         'Config · $1'],
+    [/^Ảnh lấy từ bản export sẵn · (.+)$/,        'Images from saved export · $1'],
+    [/^Vừa export mới từ Figma(.*)$/,             'Freshly exported from Figma$1'],
+    [/^Screenshot \((\d+) ảnh (.+)\)$/,           'Screenshots ($1 images $2)'],
+    [/^Tải (\d+) ảnh$/,                           'Download $1 images'],
+    [/^Tải icon (.+)$/,                           'Download icon $1'],
+    [/^(.+) — dán link store$/,                   '$1 — paste store link'],
+    [/^(.+) — APK Dev tắt quảng cáo$/,            '$1 — Dev APK with ads disabled'],
+    [/^Hiện tại: (.+) → đề xuất code mới: (.+)$/, 'Current: $1 → suggested new code: $2'],
+    [/^\u2713 Auto-suggest từ package: (.+)$/,     '\u2713 Auto-suggested from package: $1'],
+    [/^Data safety — (\d+) data-type$/,           'Data safety — $1 data types'],
+    [/^· sửa giá trị rồi Save → build dev\+prod\.$/, '· edit the value then Save → build dev+prod.'],
+    [/^Cập nhật Store: (.+)$/,                    'Store updated: $1']
+  ];
   function lang() {
     try { return localStorage.getItem('hub_lang') || 'vi'; } catch (e) { return 'vi'; }
   }
+  /* Nhiều nhãn có emoji dẫn đầu ("🔔 Nhắc bot gen…", "⬇️ Tải CSV") — tách tiền
+     tố ra rồi tra phần chữ, khỏi phải liệt kê từng biến thể emoji trong bảng. */
+  var DAU = /^([\u2000-\u3300\uD83C-\uDBFF\uDC00-\uDFFF\u2190-\u21FF\u2600-\u27BF\uFE0F\u2705\u2713\u2717\s]+)(.*)$/;
   function tra(s) {
     var k = (s || '').trim();
+    var m = k.match(DAU);
+    if (m && m[2] && m[2].trim().length > 1) {
+      var loi = tra(m[2].trim());
+      if (loi) return m[1] + loi;
+    }
     var v = T[k];
-    if (!v) return null;
-    var moi = lang() === 'en' ? v[1] : v[0];
-    return moi === k ? null : moi;
+    if (v) {
+      var moi = lang() === 'en' ? v[1] : v[0];
+      return moi === k ? null : moi;
+    }
+    if (lang() === 'en') {
+      for (var i = 0; i < MAU.length; i++) {
+        if (MAU[i][0].test(k)) return k.replace(MAU[i][0], MAU[i][1]);
+      }
+    }
+    return null;
   }
 
   function dich(root) {
