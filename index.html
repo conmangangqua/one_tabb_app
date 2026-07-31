@@ -2654,12 +2654,16 @@
     var p=pin(); if(!p) return;
     (root||document).querySelectorAll('input[type="password"]').forEach(function(i){
       if(i.id==="aablPin") return;              // ô đăng nhập: giữ nguyên
-      if(i.dataset.pinOnce) { i.value=p; return; }
-      i.dataset.pinOnce="1"; i.value=p;
-      i.style.display="none";
+      /* Chỉ ghi khi giá trị KHÁC — cùng nguyên tắc đã vá ở i18n/ROLE_BADGE: gán
+         lại y nguyên vẫn tính là mutation, nuôi observer khác chạy vô ích. */
+      if(i.dataset.pinOnce) { if(i.value!==p) i.value=p; return; }
+      i.dataset.pinOnce="1";
+      if(i.value!==p) i.value=p;
+      if(i.style.display!=="none") i.style.display="none";
       // ẩn nhãn ngay trước ô (thường là <label>Nhập PIN</label>)
       var prev=i.previousElementSibling;
-      if(prev && (prev.tagName==="LABEL" || /pin/i.test(prev.textContent||""))) prev.style.display="none";
+      if(prev && (prev.tagName==="LABEL" || /pin/i.test(prev.textContent||""))
+         && prev.style.display!=="none") prev.style.display="none";
     });
   }
   // Popup dựng sẵn trong HTML, nhưng vài chỗ chèn động → quan sát cả body.
