@@ -1907,7 +1907,15 @@
   <script>/* SW_ICON_CACHE: cache icon GitHub mãi mãi để không reload mỗi lần mở */
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(() => {});
+        /* Sếp 2026-07-30: thôi đăng ký SW — nó chỉ cache icon (lợi ích nhỏ)
+           nhưng sống dai ở origin nên không loại trừ được từ xa khi có sự cố.
+           sw.js nay là bản tự huỷ: dọn cache + unregister cho máy đã cài. */
+        navigator.serviceWorker.getRegistrations().then(function(rs){
+          rs.forEach(function(r){ r.unregister(); });
+        }).catch(function(){});
+        if (window.caches && caches.keys) caches.keys().then(function(ks){
+          ks.forEach(function(k){ caches.delete(k); });
+        }).catch(function(){});
       });
     }
   </script>
