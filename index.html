@@ -3468,7 +3468,13 @@
       if (c){ if (e.textContent.trim() !== c) { e.textContent = c; e.title = g; } return; }
       if (can.indexOf(g) === -1) can.push(g);
     });
+    /* [BLOCKER] Chặn gọi TRÙNG: chay() chạy lại sau mỗi mutation, mà lần đầu
+       chưa có cache nên cùng những chuỗi đó bị bắn đi bắn lại hàng chục lượt →
+       nghẽn, trang phải chờ cả phút mới hiện; vào lần sau đã có cache nên không
+       thấy nữa (Sếp 2026-07-31: "đợi tầm 2p", "sau đó thì ko bị đơ nữa"). */
+    can = can.filter(function(g){ return !dangGoi[l + "|" + g]; });
     if (!can.length) return;
+    can.forEach(function(g){ dangGoi[l + "|" + g] = 1; });
     try{
       var r = await fetch(API + "/api/translate", {method:"POST",
         headers:{"Content-Type":"application/json"}, body: JSON.stringify({q: can, to: l})});
@@ -3480,11 +3486,26 @@
         if (c) { e.textContent = c; e.title = nguon(e); }   /* giữ bản gốc ở tooltip */
       });
     }catch(e){}
+    finally{ can.forEach(function(g){ delete dangGoi[l + "|" + g]; }); }
   }
-  var hen=null;
-  function hoan(){ if(hen) return; hen=setTimeout(function(){ hen=null; chay(); }, 400); }
+  var dangGoi = {};
+  var hen=null, sanSang=false;
+  /* Dịch mô tả là tính năng PHỤ nên không được tranh băng thông với nội dung
+     chính: trình duyệt chỉ mở ~6 kết nối mỗi host, mà hub còn phải gọi apps.json,
+     version, health, icon… cùng host. Trước đây lớp dịch bắn request ngay lúc
+     trang đang dựng nên đẩy các request thiết yếu xuống hàng đợi — vào lần đầu
+     (chưa có cache) phải chờ rất lâu mới thấy nội dung; lần sau có cache nên hết
+     (Sếp 2026-07-31). Nay chờ trang load xong rồi mới dịch. */
+  function hoan(){ if(!sanSang || hen) return; hen=setTimeout(function(){ hen=null; chay(); }, 400); }
+  function moCong(){
+    if (sanSang) return;
+    sanSang = true;
+    if (window.requestIdleCallback) requestIdleCallback(function(){ chay(); }, {timeout:4000});
+    else setTimeout(chay, 1200);
+  }
   function batDau(){
-    hoan();
+    if (document.readyState === 'complete') setTimeout(moCong, 800);
+    else window.addEventListener('load', function(){ setTimeout(moCong, 800); });
     new MutationObserver(hoan).observe(document.body,{childList:true,subtree:true});
     document.addEventListener("click", function(e){
       if (e.target && e.target.closest && e.target.closest("#langSw")) setTimeout(hoan, 60);
