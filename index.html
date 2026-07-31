@@ -421,7 +421,11 @@
           ((app.name || "").toLowerCase().includes(query) ||
            (app.description || "").toLowerCase().includes(query) ||
            descDom.toLowerCase().includes(query) ||
-           (app.category || "").toLowerCase().includes(query));
+           (app.category || "").toLowerCase().includes(query) ||
+           /* category hiển thị đã được i18n dịch — cho gõ cả tên tiếng Việt
+              ("tiện ích" ra Tools), không chỉ tên gốc Play Console */
+           (((card.querySelector(".pill-category") || {}).textContent) || "")
+             .toLowerCase().includes(query));
         card.style.display = khop ? "" : "none";
         if (khop) hien++;
       });
@@ -2984,6 +2988,45 @@
     'Thiếu:':               ['Thiếu:', 'Missing:'],
     'Nhóm:':                ['Nhóm:', 'Group:'],
     '✅ Đã ghi lên Firebase (RC v': ['✅ Đã ghi lên Firebase (RC v', '✅ Saved to Firebase (RC v'],
+    // ── Category (tập hữu hạn của Play Console → bảng tĩnh cho chuẩn và nhất
+    // quán, không đẩy qua dịch máy)
+    'AI Chat':              ['Trò chuyện AI', 'AI Chat'],
+    'Art & Design':         ['Nghệ thuật & Thiết kế', 'Art & Design'],
+    'Browser':              ['Trình duyệt', 'Browser'],
+    'Caller ID':            ['Nhận diện cuộc gọi', 'Caller ID'],
+    'Cleaner & Booster':    ['Dọn dẹp & Tăng tốc', 'Cleaner & Booster'],
+    'Communication':        ['Liên lạc', 'Communication'],
+    'Downloader':           ['Tải xuống', 'Downloader'],
+    'Education':            ['Giáo dục', 'Education'],
+    'Emulator':             ['Giả lập', 'Emulator'],
+    'Entertainment':        ['Giải trí', 'Entertainment'],
+    'Health & Fitness':     ['Sức khoẻ & Thể hình', 'Health & Fitness'],
+    'Lifestyle':            ['Phong cách sống', 'Lifestyle'],
+    'Maps & Navigation':    ['Bản đồ & Dẫn đường', 'Maps & Navigation'],
+    'Music & Audio':        ['Nhạc & Âm thanh', 'Music & Audio'],
+    'Navigation':           ['Dẫn đường', 'Navigation'],
+    'Personalization':      ['Cá nhân hoá', 'Personalization'],
+    'Photography':          ['Nhiếp ảnh', 'Photography'],
+    'Productivity':         ['Năng suất', 'Productivity'],
+    'Recovery':             ['Khôi phục dữ liệu', 'Recovery'],
+    'Sports':               ['Thể thao', 'Sports'],
+    'Streaming':            ['Xem trực tuyến', 'Streaming'],
+    'Tools':                ['Tiện ích', 'Tools'],
+    'VPN':                  ['VPN', 'VPN'],
+    'Video':                ['Video', 'Video'],
+    'Video Players':        ['Trình phát video', 'Video Players'],
+    'Video Players & Editors': ['Trình phát & Sửa video', 'Video Players & Editors'],
+    'Books & Reference':    ['Sách & Tham khảo', 'Books & Reference'],
+    'Business':             ['Doanh nghiệp', 'Business'],
+    'Finance':              ['Tài chính', 'Finance'],
+    'Food & Drink':         ['Ẩm thực', 'Food & Drink'],
+    'Games':                ['Trò chơi', 'Games'],
+    'Medical':              ['Y tế', 'Medical'],
+    'News & Magazines':     ['Tin tức & Tạp chí', 'News & Magazines'],
+    'Shopping':             ['Mua sắm', 'Shopping'],
+    'Social':               ['Mạng xã hội', 'Social'],
+    'Travel & Local':       ['Du lịch & Địa phương', 'Travel & Local'],
+    'Weather':              ['Thời tiết', 'Weather'],
     // ── nhãn nút trên card
     'Assets':               ['Tài nguyên', 'Assets'],
     'Screenshots':          ['Ảnh chụp màn hình', 'Screenshots'],
