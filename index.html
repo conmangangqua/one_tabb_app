@@ -365,10 +365,20 @@
       if (!host) return;
       const cats = [...new Set(allApps.map(a => a.category).filter(Boolean))].sort();
       if (!cats.length) { host.innerHTML = ""; return; }
-      const chip = (label, val, cnt) => `<button type="button" class="cat-chip${selectedCategory===val?' active':''}" onclick="selectCategory(this.dataset.cat)" data-cat="${val.replace(/"/g,'&quot;')}">${label}${cnt!=null?` <span class="cnt">${cnt}</span>`:''}</button>`;
+      const chip = (label, val, cnt) => `<button type="button" data-cat="${val}" class="cat-chip${selectedCategory===val?' active':''}" onclick="selectCategory(this.dataset.cat)" data-cat="${val.replace(/"/g,'&quot;')}">${label}${cnt!=null?` <span class="cnt">${cnt}</span>`:''}</button>`;
       host.innerHTML = chip("Tất cả", "", allApps.length) + cats.map(c => chip(c, c, allApps.filter(a=>a.category===c).length)).join("");
     };
-    const selectCategory = (val) => { selectedCategory = val; buildCategoryChips(); filterApps(); };
+    const selectCategory = (val) => {
+      selectedCategory = val;
+      /* Sếp 2026-07-30 ("bấm category cứ nháy nháy"): trước đây gọi
+         buildCategoryChips() dựng lại toàn bộ chip nên chữ nhảy về bản gốc
+         ~100ms rồi mới dịch lại. Nay chỉ đổi chip đang active — DOM giữ
+         nguyên nên không còn gì để nháy. */
+      document.querySelectorAll('.cat-chip').forEach((c) => {
+        c.classList.toggle('active', (c.dataset.cat || '') === val);
+      });
+      filterApps();
+    };
     const formatUrl = (url, isIOS) => url && isIOS ? "itms-services://?action=download-manifest&url=" + encodeURIComponent(url) : url;
     const renderApps = (apps) => {
       const container = document.getElementById("appContainer"); container.innerHTML = "";
@@ -3027,6 +3037,11 @@
     'Social':               ['Mạng xã hội', 'Social'],
     'Travel & Local':       ['Du lịch & Địa phương', 'Travel & Local'],
     'Weather':              ['Thời tiết', 'Weather'],
+    'Store description':    ['Mô tả Store', 'Store description'],
+    'Icon':                 ['Icon', 'Icon'],
+    'Content rating':       ['Phân loại nội dung', 'Content rating'],
+    'Feature graphic':      ['Ảnh bìa Feature', 'Feature graphic'],
+    'Screenshot':           ['Ảnh chụp màn hình', 'Screenshot'],
     // ── nhãn nút trên card
     'Assets':               ['Tài nguyên', 'Assets'],
     'Screenshots':          ['Ảnh chụp màn hình', 'Screenshots'],
@@ -3216,13 +3231,34 @@
     [/AI phân loại/g,                              'AI classified'],
     [/Store category/g,                            'Store category']
   ];
+  /* Chiều EN→VI cho chuỗi gốc tiếng Anh có phần ghép động. MAU ở trên chỉ lo
+     chiều VI→EN nên nhãn kiểu "Feature graphic (1024×500)" không có đường về
+     tiếng Việt (Sếp 2026-07-30). */
+  var MAU_VI = [
+    [/^Feature graphic \((.+)\)$/,        'Ảnh bìa Feature ($1)'],
+    [/^Screenshot \((\d+) ảnh (.+)\)$/,   'Ảnh chụp màn hình ($1 ảnh $2)'],
+    [/^Screenshot \((.+)\)$/,             'Ảnh chụp màn hình ($1)'],
+    [/^Data safety — (\d+) data-type$/,   'An toàn dữ liệu — $1 loại dữ liệu']
+  ];
   function lang() {
     try { return localStorage.getItem('hub_lang') || 'vi'; } catch (e) { return 'vi'; }
   }
   /* Nhiều nhãn có emoji dẫn đầu ("🔔 Nhắc bot gen…", "⬇️ Tải CSV") — tách tiền
      tố ra rồi tra phần chữ, khỏi phải liệt kê từng biến thể emoji trong bảng. */
   var DAU = /^([\u2000-\u3300\uD83C-\uDBFF\uDC00-\uDFFF\u2190-\u21FF\u2600-\u27BF\uFE0F\u2705\u2713\u2717\s]+)(.*)$/;
+  /* Cache tra cứu: một chuỗi chỉ chạy qua bảng + 40 mẫu + 41 cụm regex đúng
+     một lần cho mỗi ngôn ngữ, các lần sau lấy từ Map. Danh sách này chạy lại mỗi
+     lần DOM đổi nên không cache sẽ tốn CPU vô ích và làm chậm khung hình. */
+  var nho = {};
   function tra(s) {
+    var k = (s || '').trim();
+    var kho = nho[lang()] || (nho[lang()] = {});
+    if (Object.prototype.hasOwnProperty.call(kho, k)) return kho[k];
+    var kq = tra0(k);
+    kho[k] = kq;
+    return kq;
+  }
+  function tra0(s) {
     var k = (s || '').trim();
     var m = k.match(DAU);
     if (m && m[2] && m[2].trim().length > 1) {
@@ -3233,6 +3269,11 @@
     if (v) {
       var moi = lang() === 'en' ? v[1] : v[0];
       return moi === k ? null : moi;
+    }
+    if (lang() === 'vi') {
+      for (var vi = 0; vi < MAU_VI.length; vi++) {
+        if (MAU_VI[vi][0].test(k)) return k.replace(MAU_VI[vi][0], MAU_VI[vi][1]);
+      }
     }
     if (lang() === 'en') {
       for (var i = 0; i < MAU.length; i++) {
@@ -3307,11 +3348,8 @@
 
   function start() {
     nutChon(); dich(document);
-    var hen = null;
-    new MutationObserver(function () {
-      if (hen) return;
-      hen = setTimeout(function () { hen = null; dich(document); }, 120);
-    }).observe(document.body, { childList: true, subtree: true });
+    new MutationObserver(function () { dich(document); })
+      .observe(document.body, { childList: true, subtree: true });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
   else start();
