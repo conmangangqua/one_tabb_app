@@ -2,7 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "headers": [
     {
-      "comment": "Sếp 2026-07-31: Vercel mặc định trả max-age=0, must-revalidate cho MỌI file tĩnh, nên mỗi lần mở web trình duyệt phải hỏi lại server cho từng file — 15 lượt round-trip, trong đó lucide.min.js nặng 410KB. Font/icon/js có tên cố định và chỉ đổi khi deploy nên cache dài được.",
       "source": "/fonts/(.*)",
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
     },
@@ -15,14 +14,8 @@
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800, stale-while-revalidate=2592000" }]
     },
     {
-      "comment": "Dữ liệu đổi theo bot: cho dùng bản cũ ngay rồi làm mới nền, thay vì bắt chờ.",
       "source": "/(apps|versions|desc_i18n|names|category_overrides).json",
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=60, stale-while-revalidate=600" }]
-    },
-    {
-      "comment": "HTML vẫn phải revalidate để deploy mới lên ngay.",
-      "source": "/",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }]
     }
   ]
 }
