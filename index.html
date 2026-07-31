@@ -3445,15 +3445,21 @@
     });
     if (!els.length) return;
     var can = [];
+    var CO_DAU = /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/i;
     els.forEach(function(e){
       var g = nguon(e);
       if (!g) return;
       e.dataset.trGoc = g;
+      /* Ngôn ngữ đang chọn TRÙNG ngôn ngữ gốc của chuỗi → phải KHÔI PHỤC bản gốc.
+         Trước đây chỉ `return`, nên đổi VI→EN xong mô tả vẫn nằm nguyên bản tiếng
+         Việt đã dịch lúc trước (Sếp 2026-07-31). */
+      var gocLaVi = CO_DAU.test(g);
+      if ((l === "vi" && gocLaVi) || (l !== "vi" && !gocLaVi)){
+        if (e.textContent.trim() !== g) { e.textContent = g; e.removeAttribute("title"); }
+        return;
+      }
       var c = lay(l, g);
-      if (c){ if (e.textContent.trim() !== c) e.textContent = c; return; }
-      /* tiếng Việt sẵn rồi thì thôi — tránh gọi mạng vô ích */
-      if (l === "vi" && /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/i.test(g)) return;
-      if (l !== "vi" && !/[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/i.test(g)) return;
+      if (c){ if (e.textContent.trim() !== c) { e.textContent = c; e.title = g; } return; }
       if (can.indexOf(g) === -1) can.push(g);
     });
     if (!can.length) return;
