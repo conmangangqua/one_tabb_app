@@ -3348,8 +3348,13 @@
 
   function start() {
     nutChon(); dich(document);
-    new MutationObserver(function () { dich(document); })
-      .observe(document.body, { childList: true, subtree: true });
+    var theoDoi = new MutationObserver(chay);
+  function batDauTheoDoi(){ theoDoi.observe(document.body, { childList: true, subtree: true }); }
+  function chay(){
+    theoDoi.disconnect();
+    try { dich(document); } finally { theoDoi.takeRecords(); batDauTheoDoi(); }
+  }
+  batDauTheoDoi();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
   else start();
@@ -3380,11 +3385,16 @@
       }
     });
   }
-  var hen = null;
-  function hoan(){ if (hen) return; hen = setTimeout(function(){ hen = null; canDeu(); }, 90); }
+  var hen = null, mo = null;
+  function hoan(){ if (hen) return; hen = setTimeout(function(){ hen = null; chay(); }, 90); }
+  function chay(){
+    if (mo) mo.disconnect();
+    try { canDeu(); } finally { if (mo) { mo.takeRecords(); theoDoi(); } }
+  }
+  function theoDoi(){ mo.observe(document.body, {childList:true, subtree:true, attributes:true, attributeFilter:['class','style']}); }
   function batDau(){
     canDeu();
-    new MutationObserver(hoan).observe(document.body, {childList:true, subtree:true, attributes:true, attributeFilter:['class','style']});
+    mo = new MutationObserver(hoan); theoDoi();
     window.addEventListener('resize', hoan);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', batDau);
