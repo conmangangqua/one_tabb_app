@@ -3309,5 +3309,66 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', batDau);
   else batDau();
 })();</script>
+<script>/* I18N_DATA — dịch phần DỮ LIỆU (mô tả app lấy từ store) */
+(function(){
+  /* Bảng i18n tĩnh chỉ phủ NHÃN giao diện. Mô tả app là dữ liệu lấy từ store,
+     luôn tiếng Anh, nên ở chế độ VI vẫn lù lù tiếng Anh giữa giao diện Việt
+     (Sếp 2026-07-30). Ở đây dịch qua /api/translate rồi cache localStorage —
+     mỗi chuỗi chỉ gọi mạng đúng một lần cho mỗi ngôn ngữ. */
+  var API = "https://aab.tranquilmind.co";
+  var KHOA = "hub_tr_";                 // cache: hub_tr_<lang>_<chuỗi gốc>
+  function lang(){ try{ return localStorage.getItem("hub_lang")||"vi"; }catch(e){ return "vi"; } }
+  function lay(l,t){ try{ return localStorage.getItem(KHOA+l+"_"+t); }catch(e){ return null; } }
+  function luu(l,t,v){ try{ localStorage.setItem(KHOA+l+"_"+t, v); }catch(e){} }
+
+  /* Chỉ đụng những chỗ CHẮC CHẮN là dữ liệu; không quét cả trang để khỏi dịch
+     nhầm nhãn đã có bản Việt chuẩn trong bảng i18n. */
+  var CHON = ".app-desc";
+
+  function nguon(el){ return el.dataset.trGoc || el.textContent.trim(); }
+
+  async function chay(){
+    var l = lang();
+    var els = [].slice.call(document.querySelectorAll(CHON)).filter(function(e){
+      return e.textContent.trim().length > 8;
+    });
+    if (!els.length) return;
+    var can = [];
+    els.forEach(function(e){
+      var g = nguon(e);
+      if (!g) return;
+      e.dataset.trGoc = g;
+      var c = lay(l, g);
+      if (c){ if (e.textContent.trim() !== c) e.textContent = c; return; }
+      /* tiếng Việt sẵn rồi thì thôi — tránh gọi mạng vô ích */
+      if (l === "vi" && /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/i.test(g)) return;
+      if (l !== "vi" && !/[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/i.test(g)) return;
+      if (can.indexOf(g) === -1) can.push(g);
+    });
+    if (!can.length) return;
+    try{
+      var r = await fetch(API + "/api/translate", {method:"POST",
+        headers:{"Content-Type":"application/json"}, body: JSON.stringify({q: can, to: l})});
+      if (!r.ok) return;
+      var j = await r.json();
+      (j.t||[]).forEach(function(v,i){ if (v) luu(l, can[i], v); });
+      els.forEach(function(e){
+        var c = lay(l, nguon(e));
+        if (c) { e.textContent = c; e.title = nguon(e); }   /* giữ bản gốc ở tooltip */
+      });
+    }catch(e){}
+  }
+  var hen=null;
+  function hoan(){ if(hen) return; hen=setTimeout(function(){ hen=null; chay(); }, 400); }
+  function batDau(){
+    hoan();
+    new MutationObserver(hoan).observe(document.body,{childList:true,subtree:true});
+    document.addEventListener("click", function(e){
+      if (e.target && e.target.closest && e.target.closest("#langSw")) setTimeout(hoan, 60);
+    }, true);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", batDau);
+  else batDau();
+})();</script>
 </body>
 </html>
