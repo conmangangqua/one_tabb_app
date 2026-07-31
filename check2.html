@@ -1,0 +1,41 @@
+<!doctype html><meta charset="utf-8"><title>Kiểm tra sâu hub</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>body{font:15px/1.6 -apple-system,sans-serif;max-width:760px;margin:30px auto;padding:0 16px}
+b{font-size:19px}li{margin:5px 0}.ok{color:#15803d}.bad{color:#b91c1c;font-weight:700}</style>
+<b>Kiểm tra sâu — tìm khối JS gây lỗi</b>
+<p>Trang này tải index.html của hub rồi chạy THỬ từng khối script một cách độc lập,
+để chỉ ra đúng khối nào hỏng trên trình duyệt này.</p>
+<ul id="kq"><li>Đang chạy…</li></ul>
+<script>
+var ul=document.getElementById('kq');
+function ghi(t,cls){ var li=document.createElement('li'); li.textContent=t; if(cls) li.className=cls; ul.appendChild(li); }
+(function(){
+  var t0=Date.now();
+  fetch('./index.html?cb='+Date.now(), {cache:'no-store'}).then(function(r){
+    ghi('Tải index.html: HTTP '+r.status+' sau '+(Date.now()-t0)+'ms', r.ok?'ok':'bad');
+    return r.text();
+  }).then(function(html){
+    ul.innerHTML='';
+    ghi('index.html: '+(html.length/1024).toFixed(0)+' KB','ok');
+    var re=/<script(?![^>]*src=)[^>]*>([\s\S]*?)<\/script>/g, m, i=0, hong=0;
+    while((m=re.exec(html))){
+      i++;
+      var src=m[1];
+      try{ new Function(src); }
+      catch(e){ hong++; ghi('Khối #'+i+' LỖI CÚ PHÁP: '+e.message.slice(0,120),'bad'); continue; }
+      var nhan=(src.match(/\/\*\s*([A-Z_0-9]{3,30})/)||[])[1]||'(không tên)';
+      try{
+        // chạy thử trong iframe cách ly để lỗi runtime không giết trang này
+        var f=document.createElement('iframe'); f.style.display='none'; document.body.appendChild(f);
+        var w=f.contentWindow;
+        w.eval('window.onerror=function(msg){window.__e=msg};');
+        w.eval(src);
+        if(w.__e){ hong++; ghi('Khối #'+i+' ['+nhan+'] lỗi khi chạy: '+String(w.__e).slice(0,110),'bad'); }
+        f.remove();
+      }catch(e){ hong++; ghi('Khối #'+i+' ['+nhan+'] ném lỗi: '+String(e.message||e).slice(0,110),'bad'); }
+    }
+    ghi('Đã kiểm '+i+' khối script — '+(hong? hong+' khối có vấn đề' : 'không khối nào lỗi'), hong?'bad':'ok');
+    if(!hong) ghi('→ Không phải lỗi cú pháp/khởi tạo. Vấn đề nằm ở lúc chạy thật (mạng chậm, dữ liệu, hoặc tiện ích trình duyệt).');
+  }).catch(function(e){ ghi('KHÔNG tải được index.html: '+e.message,'bad'); });
+})();
+</script>
