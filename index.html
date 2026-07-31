@@ -637,7 +637,9 @@
       // muốn user public biết app nào có ads / chưa ship). clearHealthUI() chạy
       // trước để ẩn mọi badge nếu chưa login.
       if(localStorage.getItem("aab_authed")!=="1"){ clearHealthUI(); return; }
-      runProdAdsCheck();
+      /* Sếp 2026-07-31: thôi gọi apps-status/store-ads-check lúc mở trang —
+         thêm một host nữa phải chờ, mà badge ads không đáng đánh đổi tốc độ
+         hiện nội dung. Hàm giữ lại, chỉ không gọi tự động nữa. */
       if(!allApps.length) return;
       const apps = allApps.filter(a => a.id).slice(0, 50).map(a => ({id: a.id, store_url: a.store || null}));
       try{
@@ -745,7 +747,12 @@
       if (!ghIndex){
         ghIndex = {};
         try {
-          const tr = await fetch("https://api.github.com/repos/conmangangqua/app_description/git/trees/main?recursive=1", { cache: "no-store" });
+          /* Sếp 2026-07-31: KHÔNG gọi api.github.com lúc mở trang nữa. Nó tải cả cây
+             thư mục repo chỉ để map slug → path, mà GitHub chặn 60 request/giờ cho
+             IP không token — vượt hạn mức là 403 và trình duyệt treo chờ. Mô tả nay
+             lấy từ desc_i18n.json do job trong repo sinh sẵn; app mới vẫn còn
+             /api/description làm chỗ dựa. */
+          const tr = { ok: false };
           if (tr.ok){
             const td = await tr.json();
             const normalize = (s) => String(s||"").toLowerCase().replace(/[-_]/g, "");
