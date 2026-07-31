@@ -3469,45 +3469,5 @@
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", batDau);
   else batDau();
 })();</script>
-<script>/* VER_CHECK — phát hiện bản mới, khỏi phải đoán "có phải cache không" */
-(function(){
-  /* Vercel trả cache-control: max-age=0, must-revalidate nên F5 là đủ, nhưng TAB
-     ĐANG MỞ vẫn chạy JS cũ tới khi người dùng tự tải lại — nên vá xong rồi mà
-     màn hình vẫn lỗi, không biết là do cache hay do chưa sửa được
-     (Sếp 2026-07-30). Ở đây so ETag của chính index.html mỗi 60s; khác thì hiện
-     một thanh nhỏ để bấm tải lại, KHÔNG tự reload giữa chừng thao tác. */
-  var goc = null, hienBanner = false;
-  async function etag(){
-    try{
-      var r = await fetch(location.pathname + '?v=' + Date.now(), {method:'HEAD', cache:'no-store'});
-      return r.headers.get('etag') || r.headers.get('last-modified') || null;
-    }catch(e){ return null; }
-  }
-  function banner(){
-    if (hienBanner) return;
-    hienBanner = true;
-    var d = document.createElement('div');
-    d.id = 'verNew';
-    d.innerHTML = '<span>Có bản mới</span><button type="button">Tải lại</button>';
-    document.body.appendChild(d);
-    var css = document.createElement('style');
-    css.textContent = '#verNew{position:fixed;left:16px;bottom:16px;z-index:100030;display:flex;align-items:center;'
-      + 'gap:10px;background:var(--card-bg,#fff);color:var(--text-main,#0f172a);border:1.5px solid '
-      + 'color-mix(in srgb,var(--primary,#334155) 35%,var(--card-bg,#fff));border-radius:999px;'
-      + 'padding:8px 8px 8px 16px;box-shadow:0 10px 30px rgba(0,0,0,.18);font-size:.85rem;font-weight:700}'
-      + '#verNew button{border:none;cursor:pointer;font-family:inherit;font-weight:800;font-size:.8rem;'
-      + 'padding:7px 14px;border-radius:999px;background:var(--primary-strong,var(--primary,#334155));color:#fff}';
-    document.head.appendChild(css);
-    d.querySelector('button').onclick = function(){ location.reload(); };
-  }
-  async function kiem(){
-    var e = await etag();
-    if (!e) return;
-    if (goc === null){ goc = e; return; }
-    if (e !== goc) banner();
-  }
-  setTimeout(kiem, 3000);
-  setInterval(kiem, 60000);
-})();</script>
 </body>
 </html>
