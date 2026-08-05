@@ -356,7 +356,7 @@
   <section class="search-section"><div class="search-wrapper"><input type="text" id="searchInput" placeholder="Search for apps..." oninput="filterApps()"></div></section>
   <div class="cat-chips" id="catChips"></div>
   <main><div id="appContainer"></div></main>
-  <footer><p>&copy; 2026 One Tabb 🤝 Tranquil Mind Studio. Powered by Platinum Engine.</p></footer>
+  <footer><p>&copy; 2026 One Tabb 🤝 Tranquil Mind Studio. <span>Powered by Platinum Engine.</span></p></footer>
   <script>
     let allApps = [];
     let selectedCategory = "";
@@ -2809,6 +2809,19 @@
    Mặc định VI. Lựa chọn lưu localStorage.hub_lang. */
 (function () {
   var T = {
+    /* I18N_ADD_20260805 — bổ sung sau khi quét DOM 2 chiều VI/EN
+       (Sep 2026-08-05: empty state, footer, nhan nut con sot). */
+    'Premium distribution for internal testing only.': ['Bản phân phối nội bộ, chỉ dùng để kiểm thử.', 'Premium distribution for internal testing only.'],
+    '🎮 © 2026 Game Center · Chơi game vui mỗi ngày. Level up! 🚀': ['🎮 © 2026 Game Center · Chơi game vui mỗi ngày. Level up! 🚀', '🎮 © 2026 Game Center · Fun games every day. Level up! 🚀'],
+    /* I18N_ADD_20260805 — bổ sung sau khi quét DOM 2 chiều VI/EN
+       (Sep 2026-08-05: empty state, footer, nhan nut con sot). */
+    'No apps found matching your search.': ['Không tìm thấy app nào khớp tìm kiếm.', 'No apps found matching your search.'],
+    'Powered by Platinum Engine.': ['Vận hành bởi Platinum Engine.', 'Powered by Platinum Engine.'],
+    'Phát triển bởi ConMaNgangQua': ['Phát triển bởi ConMaNgangQua', 'Developed by ConMaNgangQua'],
+    'Store URL (Google Play / App Store)': ['Link cửa hàng (Google Play / App Store)', 'Store URL (Google Play / App Store)'],
+    'Xem GitHub →': ['Xem GitHub →', 'View on GitHub →'],
+    'Build TestFlight': ['Dựng TestFlight', 'Build TestFlight'],
+    'Save + Build dev/prod': ['Lưu + Dựng dev/prod', 'Save + Build dev/prod'],
     // ── bổ sung sau lượt QUÉT thực tế: 35 chuỗi còn tiếng Việt khi ở chế độ EN
     'Nhập PIN để Gen lại':  ['Nhập PIN để Gen lại', 'Enter PIN to regenerate'],
     'Nhập PIN để tạo':      ['Nhập PIN để tạo', 'Enter PIN to create'],
