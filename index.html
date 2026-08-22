@@ -350,6 +350,30 @@
     @keyframes prodAdsAlert { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
     .badge-row { display: flex !important; align-items: center !important; gap: 8px !important; flex-wrap: wrap !important; overflow: visible !important; row-gap: 8px; margin-bottom: 18px; }
   </style>
+<script>/* R34_SAME_ORIGIN_API — Trình duyệt nhúng (Discord/Facebook/Zalo…) chặn fetch sang
+   DOMAIN KHÁC: mở thẳng link thì ra dữ liệu, nhưng fetch trong trang ném TypeError
+   "Load failed" (WebKit) / "Failed to fetch" (Chrome). Modal Hồ sơ Store hiện đúng chuỗi
+   đó vì nhánh catch in thẳng e.message (Sếp gặp 2026-08-22, mọi app đều lỗi).
+   Cách chữa: đưa request về CÙNG DOMAIN qua rewrite /papi trong vercel.json; hỏng mới rơi
+   về domain gốc nên không có rủi ro thụt lùi. Vá ở tầng fetch để phủ hết mọi lời gọi. */
+(function(){
+  var ORIGIN = "https://aab.tranquilmind.co";
+  var _f = window.fetch.bind(window);
+  window.fetch = function(input, init){
+    try{
+      var url = (typeof input === "string") ? input : (input && input.url) || "";
+      if (url.indexOf(ORIGIN + "/api/") === 0){
+        var same = url.replace(ORIGIN + "/api/", "/papi/");
+        return _f(same, init).then(function(r){
+          /* rewrite chưa deploy / edge lỗi → quay về domain gốc */
+          if (r.status === 404 || r.status === 502 || r.status === 503) return _f(input, init);
+          return r;
+        }).catch(function(){ return _f(input, init); });
+      }
+    }catch(_){ }
+    return _f(input, init);
+  };
+})();</script>
 </head>
 <body>
   <div class="bg-animation"><div class="blob"></div><div class="blob blob-2"></div></div>
@@ -1543,7 +1567,7 @@
         window.__vdSuyRa = d.inferred_fields || [];
         if(d.platform==="appstore") renderAppstore(d);
         else renderGoogle(d);
-      }catch(e){ var _m=(e&&(e.name==="TimeoutError"||e.name==="AbortError"))?"Tải quá lâu (GitLab chậm/nghẽn) — bấm Gen lại thử lại.":(e.message||"Lỗi tải mô tả"); fieldsEl.innerHTML="<div class=\"box\">⚠️ "+escapeHtml(_m)+"</div>"; }
+      }catch(e){ var _m=(e&&(e.name==="TimeoutError"||e.name==="AbortError"))?"Tải quá lâu (GitLab chậm/nghẽn) — bấm Gen lại thử lại.":((/Load failed|Failed to fetch|NetworkError|network error/i.test(e&&e.message||"")?"Không gọi được máy chủ dữ liệu. Nếu đang mở trong Discord/Facebook, hãy mở bằng Safari hoặc Chrome thật rồi thử lại.":(e.message||"Lỗi tải mô tả"))); fieldsEl.innerHTML="<div class=\"box\">⚠️ "+escapeHtml(_m)+"</div>"; }
       finally{ gb.disabled=false; if(lb) lb.disabled=false; }
     };
     var _descPollTimer = null;
