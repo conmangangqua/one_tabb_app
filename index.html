@@ -507,8 +507,6 @@
         var nm = app.name || slug;
         setTimeout(function(){
           if(action === "desc" && window.openViewDesc) openViewDesc(slug, nm);
-          else if(action === "ba" && window.genBaDocs)
-            genBaDocs(slug, nm, document.querySelector("[data-app-id='"+slug+"'] .btn-ba"));
           else if(action === "ss" && window.openShots) openShots(slug, nm);
         }, 100);
       }catch(e){ /* silent */ }
@@ -1710,9 +1708,6 @@
     .btn-as:disabled{opacity:.6;cursor:progress}
     body.aab-authed:not(.partner-authed) .btn-as{display:flex!important}
     /* BA_DOC_GEN — only visible after auth (like .btn-as) */
-    .btn-ba{background: color-mix(in srgb,var(--text-main,#0f172a) 4%,var(--card-bg,#fff));color: var(--text-main,#0f172a);border: 1px solid color-mix(in srgb,var(--text-main,#0f172a) 13%,var(--card-bg,#fff));cursor:pointer;display:none!important;}
-    .btn-ba:hover{background:color-mix(in srgb,var(--primary,#334155) 9%,var(--card-bg,#fff));border-color:color-mix(in srgb,var(--primary,#334155) 45%,var(--card-bg,#fff))}
-    .btn-ba:disabled{opacity:.6;cursor:progress}
     body.aab-authed:not(.partner-authed) .btn-ba{display:flex!important}
     .btn-ss{background: color-mix(in srgb,var(--text-main,#0f172a) 4%,var(--card-bg,#fff));color: var(--text-main,#0f172a);border: 1px solid color-mix(in srgb,var(--text-main,#0f172a) 13%,var(--card-bg,#fff));cursor:pointer;display:none!important;}
     .btn-ss:hover{background:color-mix(in srgb,var(--primary,#334155) 9%,var(--card-bg,#fff));border-color:color-mix(in srgb,var(--primary,#334155) 45%,var(--card-bg,#fff))}
@@ -1749,7 +1744,6 @@
     /* BA modal */
     #baOv{position:fixed;inset:0;background:rgba(15,23,42,.7);z-index:9998;display:none;align-items:center;justify-content:center;padding:20px}
     #baOv.open{display:flex}
-    #baModal{background:#fff;color:#0f172a;border-radius:20px;width:100%;max-width:920px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(0,0,0,.4);overflow:hidden}
     #baHdr{padding:18px 24px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(135deg,var(--primary,#334155),color-mix(in srgb,var(--primary,#334155) 85%,#000));color:#fff}
     #baHdr h3{font-size:1.05rem;font-weight:800;margin:0;letter-spacing:.3px}
     #baClose{background:rgba(255,255,255,.2);color:#fff;border:none;width:34px;height:34px;border-radius:10px;cursor:pointer;font-size:1.2rem;font-weight:700}
@@ -1779,237 +1773,15 @@
     #baMsg{font-size:.8rem;font-weight:600;flex:1;text-align:right;color:#64748b}
     #baViewLink{font-size:.78rem;color:var(--primary-strong,var(--primary,#334155));font-weight:600;text-decoration:none;margin-left:auto}
     #baViewLink:hover{text-decoration:underline}
-    .ba-empty{padding:60px 20px;text-align:center;color:#64748b}
-    .ba-empty h3{color:var(--primary-strong,var(--primary,#334155));margin-bottom:8px}
     .ba-spin{width:28px;height:28px;border:3px solid #e2e8f0;border-top-color:var(--primary,#334155);border-radius:50%;animation:baspin 1s linear infinite;margin:0 auto}
     @keyframes baspin{to{transform:rotate(360deg)}}
   </style>
 
   <div id="baOv" role="dialog" aria-modal="true">
-    <div id="baModal">
-      <div id="baHdr">
-        <h3 id="baTitle">BA + Tests</h3>
-        <button id="baClose" onclick="baClose()" aria-label="Close">✕</button>
-      </div>
-      <div id="baTabs">
-        <button class="ba-tab active" data-file="BA.vi.md">📋 BA (Tiếng Việt)</button>
-        <button class="ba-tab" data-file="BA.en.md">📋 BA (English)</button>
-        <button class="ba-tab" data-file="TESTCASES.vi.md">✅ Tests (Tiếng Việt)</button>
-        <button class="ba-tab" data-file="TESTCASES.en.md">✅ Tests (English)</button>
-        <a id="baViewLink" href="#" target="_blank" rel="noopener">Xem GitHub →</a>
-      </div>
-      <div id="baBody"><div class="ba-spin"></div></div>
-      <div id="baFt">
-        <input id="baPin" type="password" placeholder="PIN để Gen" autocomplete="off">
-        <button id="baGenBtn" onclick="baGen()"><i data-lucide="sparkles" style="width:14px;height:14px"></i> Gen lại</button>
-        <span id="baMsg"></span>
-      </div>
-    </div>
+    
   </div>
 
-  <script>(function(){
-    // POST /gen → local daemon qua Cloudflare TryTunnel HTTPS (Sonnet 4.6, ~9 phút).
-    // Tunnel URL đổi mỗi lần Mac reboot — fetch URL hiện hành từ GitHub raw.
-    // GET /api/ba → Vercel cloud (instant từ GitHub raw, không cần Mac on).
-    var BA_API_GET = "https://ba-trigger.vercel.app";
-    var BA_TUNNEL_INDEX = "https://aab.tranquilmind.co/api/tunnel?name=ba";
-    var BA_API_GEN_CACHED = null;
-    async function resolveBaGen(){
-      if (BA_API_GEN_CACHED) return BA_API_GEN_CACHED;
-      try {
-        var r = await fetch(BA_TUNNEL_INDEX + "&t=" + Date.now(), { cache: "no-store" });
-        var t = (await r.text()).trim();
-        if (/^https:\/\/[a-z0-9-]+\.trycloudflare\.com$/.test(t)) {
-          BA_API_GEN_CACHED = t;
-          return t;
-        }
-        throw new Error("Tunnel URL không hợp lệ: " + t.slice(0,80));
-      } catch(e){
-        throw new Error("Không lấy được tunnel URL (Mac có đang on?): " + e.message);
-      }
-    }
-    var currentSlug = null;
-    var currentName = null;
-    var ov = document.getElementById("baOv");
-    var body = document.getElementById("baBody");
-    var pin = document.getElementById("baPin");
-    var msg = document.getElementById("baMsg");
-    var gb = document.getElementById("baGenBtn");
-    var title = document.getElementById("baTitle");
-    var viewLink = document.getElementById("baViewLink");
-    var tabs = document.querySelectorAll("#baTabs .ba-tab");
-
-    function escHtml(s){ return String(s||"").replace(/[&<>"']/g,function(c){return ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[c];}); }
-
-    // Lightweight Markdown renderer (handles headings, tables, lists, code, blockquote, links, bold/italic)
-    function renderMd(src){
-      var lines = src.split(/\r?\n/);
-      var html = [];
-      var i = 0, inList = false, listTag = "";
-      function closeList(){ if(inList){ html.push("</"+listTag+">"); inList=false; listTag=""; } }
-      function inline(t){
-        return escHtml(t)
-          .replace(/`([^`]+)`/g, "<code>$1</code>")
-          .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-          .replace(/\*([^*]+)\*/g, "<em>$1</em>")
-          .replace(/\[([^\]]+)\]\((&lt;)?([^\)\s&]+)(&gt;)?\)/g, '<a href="$3" target="_blank" rel="noopener">$1</a>');
-      }
-      while(i < lines.length){
-        var l = lines[i];
-        // Table detection: header | --- | data
-        if(/^\s*\|.+\|\s*$/.test(l) && i+1 < lines.length && /^\s*\|[\s-:|]+\|\s*$/.test(lines[i+1])){
-          closeList();
-          var headers = l.trim().slice(1,-1).split("|").map(s=>s.trim());
-          var tb = ["<table><thead><tr>"];
-          headers.forEach(h=>tb.push("<th>"+inline(h)+"</th>"));
-          tb.push("</tr></thead><tbody>");
-          i += 2;
-          while(i < lines.length && /^\s*\|.+\|\s*$/.test(lines[i])){
-            var cells = lines[i].trim().slice(1,-1).split("|").map(s=>s.trim());
-            tb.push("<tr>"+cells.map(c=>"<td>"+inline(c)+"</td>").join("")+"</tr>");
-            i++;
-          }
-          tb.push("</tbody></table>");
-          html.push(tb.join(""));
-          continue;
-        }
-        var m;
-        if((m=l.match(/^#\s+(.*)/))){ closeList(); html.push("<h1>"+inline(m[1])+"</h1>"); }
-        else if((m=l.match(/^##\s+(.*)/))){ closeList(); html.push("<h2>"+inline(m[1])+"</h2>"); }
-        else if((m=l.match(/^###\s+(.*)/))){ closeList(); html.push("<h3>"+inline(m[1])+"</h3>"); }
-        else if((m=l.match(/^>\s?(.*)/))){ closeList(); html.push("<blockquote>"+inline(m[1])+"</blockquote>"); }
-        else if((m=l.match(/^\s*-\s+\[[ x]\]\s+(.*)/))){
-          if(!inList || listTag!=="ul"){ closeList(); html.push("<ul>"); inList=true; listTag="ul"; }
-          var checked = l.includes("[x]");
-          html.push("<li><input type='checkbox' "+(checked?"checked":"")+" disabled> "+inline(m[1])+"</li>");
-        }
-        else if((m=l.match(/^\s*-\s+(.*)/))){
-          if(!inList || listTag!=="ul"){ closeList(); html.push("<ul>"); inList=true; listTag="ul"; }
-          html.push("<li>"+inline(m[1])+"</li>");
-        }
-        else if((m=l.match(/^\s*\d+\.\s+(.*)/))){
-          if(!inList || listTag!=="ol"){ closeList(); html.push("<ol>"); inList=true; listTag="ol"; }
-          html.push("<li>"+inline(m[1])+"</li>");
-        }
-        else if(l.trim()===""){ closeList(); html.push(""); }
-        else if(l.trim()==="---"){ closeList(); html.push("<hr>"); }
-        else { closeList(); html.push("<p>"+inline(l)+"</p>"); }
-        i++;
-      }
-      closeList();
-      return html.join("\n");
-    }
-
-    function activateTab(file){
-      tabs.forEach(t=>t.classList.toggle("active", t.dataset.file===file));
-      loadFile(file);
-    }
-
-    async function loadFile(file){
-      body.innerHTML = '<div class="ba-spin"></div>';
-      msg.textContent = "";
-      try {
-        var r = await fetch(BA_API_GET+"/api/ba?app_id="+encodeURIComponent(currentSlug)+"&file="+encodeURIComponent(file));
-        var d = await r.json();
-        if(!d.ok) throw new Error(d.error||"HTTP "+r.status);
-        if(!d.exists){
-          body.innerHTML = '<div class="ba-empty"><h3>Chưa có '+escHtml(file)+'</h3><p>Bấm <b>Gen lại</b> (cần PIN) để tạo bộ doc đầu tiên.</p></div>';
-          viewLink.style.display = "none";
-          return;
-        }
-        viewLink.href = d.view_url;
-        viewLink.style.display = "block";
-        body.innerHTML = renderMd(d.content);
-      } catch(e){
-        body.innerHTML = '<div class="ba-empty"><h3>Lỗi tải</h3><p>'+escHtml(e.message)+'</p></div>';
-      }
-    }
-
-    window.genBaDocs = function(id, nm){
-      currentSlug = id;
-      currentName = nm;
-      title.textContent = nm + " — BA + Tests";
-      pin.value = "";
-      msg.textContent = "";
-      gb.disabled = false;
-      viewLink.style.display = "none";
-      ov.classList.add("open");
-      pollBaStatus();
-      activateTab("BA.vi.md");
-    };
-
-    window.baClose = function(){ ov.classList.remove("open"); };
-
-    var _baPollTimer = null;
-    async function pollBaStatus(){
-      if(_baPollTimer){ clearInterval(_baPollTimer); _baPollTimer = null; }
-      function stopPoll(){ if(_baPollTimer){ clearInterval(_baPollTimer); _baPollTimer=null; } }
-      async function tick(){
-        try{
-          if(!ov.classList.contains("open")) return stopPoll();
-          var gen = await resolveBaGen();
-          var r = await fetch(gen+"/status",{cache:"no-store"});
-          var d = await r.json();
-          // BA server /status trả service info object thay vì running flag (legacy).
-          // running flag được add sau — kiểm tra cả 2.
-          if(d && d.running && d.slug === currentSlug){
-            var mins = Math.floor(d.elapsed_sec/60), secs = d.elapsed_sec%60;
-            msg.style.color="var(--primary,#334155)";
-            msg.textContent = "⏳ Đang gen ("+(mins?mins+"m"+(secs<10?"0":""):"")+secs+"s)…";
-            gb.disabled = true;
-          } else if(d && d.running === false && gb.disabled){
-            msg.textContent=""; gb.disabled=false;
-            // reload current tab
-            var activeTab = document.querySelector("#baTabs .ba-tab.active");
-            if(activeTab) loadFile(activeTab.dataset.file);
-            stopPoll();
-          }
-        }catch(e){}
-      }
-      tick();
-      _baPollTimer = setInterval(tick, 4000);
-    }
-
-    window.baGen = async function(){
-      var v = (pin.value||"").trim();
-      if(!v){ msg.style.color="#dc2626"; msg.textContent="Nhập PIN để Gen lại."; return; }
-      gb.disabled = true;
-      msg.style.color="#64748b";
-      msg.textContent = "⏳ Đang gen (~8-12 phút, Claude Sonnet 4.6 qua local daemon)…";
-      try {
-        var gen = await resolveBaGen();
-        var r = await fetch(gen+"/gen", {
-          method:"POST",
-          headers:{"Content-Type":"application/json"},
-          body: JSON.stringify({ slug: currentSlug, pin: v })
-        });
-        var d = await r.json();
-        if(!r.ok || !d.ok) throw new Error(d.error||("HTTP "+r.status));
-        msg.style.color="#059669";
-        msg.textContent = "✅ Gen OK ("+d.duration_sec+"s)";
-        viewLink.href = d.result_url;
-        viewLink.style.display = "block";
-        // Reload current tab
-        var activeTab = document.querySelector("#baTabs .ba-tab.active");
-        if(activeTab) loadFile(activeTab.dataset.file);
-      } catch(e){
-        msg.style.color="#dc2626";
-        msg.textContent = "❌ "+e.message.slice(0,160);
-      } finally {
-        gb.disabled = false;
-      }
-    };
-
-    // Tab click handlers
-    tabs.forEach(function(t){
-      t.addEventListener("click", function(){ activateTab(t.dataset.file); });
-    });
-
-    // Close on backdrop click
-    ov.addEventListener("click", function(e){ if(e.target===ov) baClose(); });
-    // Close on ESC
-    document.addEventListener("keydown", function(e){ if(e.key==="Escape" && ov.classList.contains("open")) baClose(); });
-  })();</script>
+  
   <script>(function(){
     var API="https://aab.tranquilmind.co";
     window.dlAssets=async function(id,nm,btn){
