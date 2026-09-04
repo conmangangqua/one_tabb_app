@@ -432,7 +432,7 @@
           <div class="badge-row"><span class="badge ${isIOS ? 'ios' : 'android'}"><i data-lucide="${isIOS ? 'apple' : 'smartphone'}" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>${app.platform || 'Android'}</span>${app.category ? `<span class="pill-category cat-src-${app.category_source||'store'}" title="Nguồn category: ${app.category_source==='override'?'Override tay':app.category_source==='ai'?'AI phân loại':app.category_source==='gitlab'?'Fallback subgroup':'Store category'}"><i data-lucide="tag"></i>${app.category}</span>` : ''}<span class="prod-ads-badge" data-prod-ads="loading" style="display:none"></span><span class="health-badge" data-health="loading" style="display:none"></span></div>
           <h2 class="app-title">${app.name}</h2><p class="app-desc">${app.description || ''}</p>
           <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev"><i class="btn-ic" data-lucide="wrench"></i>${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live"><i class="btn-ic" data-lucide="rocket"></i>${stack('Live Build','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full"><i class="btn-ic" data-lucide="package"></i>${stack('Download AAB','aab')}</a>` : ""} ${storeUrl ? `<a href="${storeUrl}" target="_blank" rel="noopener" class="btn btn-store"><i class="btn-ic" data-lucide="shopping-bag"></i><span class="btn-stack">View on Store${app.store_version ? `<span class="ver" data-store-ver>${app.store_version}</span>` : `<span class="ver" data-store-ver style="display:none"></span>`}</span></a>` : ""}
-          <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')"><i class="btn-ic" data-lucide="hammer"></i><span class="btn-stack">${buildLabel}</span></button>${noAdsTrigger}${playBtns}${noAdsDl}<button type="button" class="btn btn-gd" onclick="openViewDesc('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="file-text"></i><span class="btn-stack">Hồ sơ Store</span></button><!-- DS_TAKES_RN_SLOT: Data Safety đứng đúng ô cũ của Release Notes; render sẵn trong markup nên không cần injectButtons() chèn muộn (thủ phạm giật card). --><button type="button" class="btn btn-ds" onclick="openDataSafety('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="shield-check"></i><span class="btn-stack">Data Safety</span></button><button type="button" class="btn btn-as" onclick="dlAssets('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)"><i class="btn-ic" data-lucide="download"></i><span class="btn-stack">Assets</span></button><button type="button" class="btn btn-ss" onclick="openShots('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="image"></i><span class="btn-stack">Screenshots</span></button><button type="button" class="btn btn-cfg" onclick="openConfig('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="settings-2"></i><span class="btn-stack">Kiểm tra cấu hình</span></button></div><div class="store-meta">${app.storeUpdated ? `<span class="store-upd"><span class="icon">📅</span>Cập nhật Store: ${app.storeUpdated}</span>` : ""}</div>`;
+          <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')"><i class="btn-ic" data-lucide="hammer"></i><span class="btn-stack">${buildLabel}</span></button>${noAdsTrigger}${playBtns}${noAdsDl}<button type="button" class="btn btn-gd" onclick="openViewDesc('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="file-text"></i><span class="btn-stack">Hồ sơ Store</span></button><!-- DS_TAKES_RN_SLOT: Data Safety đứng đúng ô cũ của Release Notes; render sẵn trong markup nên không cần injectButtons() chèn muộn (thủ phạm giật card). --><button type="button" class="btn btn-ds" onclick="openDataSafety('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="shield-check"></i><span class="btn-stack">Data Safety</span></button><button type="button" class="btn btn-as" onclick="dlAssets('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)"><i class="btn-ic" data-lucide="download"></i><span class="btn-stack">Assets</span></button><button type="button" class="btn btn-ss" onclick="openShots('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="image"></i><span class="btn-stack">Screenshots</span></button><button type="button" class="btn btn-rk" onclick="openReleaseKit('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="package-open"></i><span class="btn-stack">Gói phát hành</span></button><button type="button" class="btn btn-cfg" onclick="openConfig('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="settings-2"></i><span class="btn-stack">Kiểm tra cấu hình</span></button></div><div class="store-meta">${app.storeUpdated ? `<span class="store-upd"><span class="icon">📅</span>Cập nhật Store: ${app.storeUpdated}</span>` : ""}</div>`;
         container.appendChild(card);
       });
       /* INJECT_SYNC: chèn nút ngay trong cùng lượt vẽ để card không đổi kích thước sau đó. */
@@ -3659,6 +3659,458 @@
   function start(){ mountBtn(); hookLogout(); syncSession(); }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
   else start();
+})();</script>
+<style>/* RELEASE_KIT — nút "Gói phát hành" trên card app.
+   Gói ảnh store + description để partner tự đẩy app lên Play.
+   Hiện cho MỌI user đã login (cả partner tier) — đây là thứ partner cần nhất. */
+    .btn-rk{background: color-mix(in srgb,var(--text-main,#0f172a) 4%,var(--card-bg,#fff));color: var(--text-main,#0f172a);border: 1px solid color-mix(in srgb,var(--text-main,#0f172a) 13%,var(--card-bg,#fff));cursor:pointer;display:none!important;}
+    .btn-rk:hover{background:color-mix(in srgb,var(--primary,#334155) 9%,var(--card-bg,#fff));border-color:color-mix(in srgb,var(--primary,#334155) 45%,var(--card-bg,#fff))}
+    .btn-rk:disabled{opacity:.6;cursor:progress}
+    body.aab-authed .btn-rk{display:flex!important}
+    body.aab-authed.partner-authed .btn-rk{display:flex!important}
+</style>
+<style>/* RELEASE_KIT modal */
+  #rkOv{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);display:none;
+    align-items:center;justify-content:center;z-index:100003;padding:20px}
+  #rkOv.open{display:flex}
+  #rkMd{background:#fff;border-radius:20px;width:100%;max-width:860px;max-height:88vh;overflow:auto;
+    padding:24px;box-shadow:0 30px 80px rgba(0,0,0,.35);font-family:inherit}
+  #rkMd h3{font-size:1.2rem;color:#0f172a;margin:0 0 2px}
+  #rkMd .rk-sub{font-size:.82rem;color:#64748b;font-weight:600;margin:0 0 16px}
+  .rk-sec{margin:18px 0 8px;font-size:.72rem;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.04em}
+  /* Sếp 2026-07-29: 3 ảnh/hàng thay vì cuộn ngang — nhìn được cả bộ mà không phải kéo. */
+  .rk-shots{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .rk-shots img{width:100%;height:auto;border-radius:10px;border:1px solid #e2e8f0;background:#f8fafc}
+  @media(max-width:560px){.rk-shots{grid-template-columns:repeat(2,1fr)}}
+  /* Hàng tiêu đề: chữ bên trái, nút tải cả bộ bên phải. */
+  /* RK_DS_TAB: bảng 7 cột rộng hơn modal → cuộn ngang trong khung riêng,
+     không để cả trang bị đẩy ngang. */
+  #rkMd .ds-tbl{overflow-x:auto;margin:4px 0 2px}
+  #rkMd .ds-tbl table{min-width:660px}
+  /* RK_TABS — thanh tab dùng đúng style .cat-chip của hub */
+  .rk-nav{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 16px;padding-bottom:14px;
+    border-bottom:1px solid #e2e8f0}
+  .rk-navb{cursor:pointer;font-family:inherit;font-size:.85rem;font-weight:700;padding:8px 16px;
+    border-radius:999px;border:1.5px solid #e2e8f0;background:#fff;
+    color:#64748b;transition:all .2s}
+  .rk-navb:hover{border-color:var(--primary,#334155)}
+  .rk-navb.on{background:var(--primary-strong,var(--primary,#334155));border-color:var(--primary,#334155);color:#fff}
+  .rk-pane{display:none}
+  .rk-pane.on{display:block}
+  .rk-sec-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:18px 0 8px}
+  .rk-sec-row .rk-sec{margin:0}
+  .rk-sec-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+  .rk-feat img{width:100%;border-radius:10px;border:1px solid #e2e8f0;display:block}
+  /* Hàng trên cùng: Icon (cố định hẹp) + Feature graphic (giãn hết phần còn lại). */
+  .rk-top{display:flex;gap:18px;align-items:flex-start}
+  .rk-top-icon{flex:0 0 auto}
+  .rk-top-feat{flex:1 1 0;min-width:0}
+  .rk-top .rk-sec-row{margin-top:0}
+  @media(max-width:620px){.rk-top{flex-direction:column}.rk-top-feat{width:100%}}
+  .rk-icons{display:flex;gap:14px;align-items:center}
+  .rk-icons img{width:170px;height:170px;border-radius:30px;border:1px solid #e2e8f0}
+  /* Tải lẻ từng file (Sếp 2026-07-28) */
+  .rk-item{position:relative;flex:0 0 auto;display:flex;flex-direction:column;gap:6px;align-items:center}
+  /* RK_MOTA_FULL: nút phụ lấy màu từ --primary của hub thay vì tím cứng. */
+  .rk-one{background:color-mix(in srgb,var(--primary,#334155) 10%,#fff);color:color-mix(in srgb,var(--primary-strong,var(--primary,#334155)) 72%,#000);border:1px solid color-mix(in srgb,var(--primary,#334155) 22%,#fff);border-radius:9px;padding:6px 12px;
+    font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
+  .rk-one:hover{background:color-mix(in srgb,var(--primary,#334155) 18%,#fff)}
+  .rk-one:disabled{opacity:.5;cursor:progress}
+  .rk-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}
+  /* RK_MOTA_FULL: icon lucide (SVG) thay emoji — cùng bộ với nút ngoài card. */
+  .rk-one,.rk-navb,.rk-tab{display:inline-flex;align-items:center;gap:6px}
+  .rk-one svg,.rk-navb svg{width:14px;height:14px;flex:0 0 auto}
+  .rk-navb svg{width:15px;height:15px}
+  /* Hộp xem trước listing (.md) — cùng tông với .rk-desc, cao hơn vì tài liệu dài. */
+  .rk-doc{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;
+    font:500 .78rem/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;color:#0f172a;
+    max-height:320px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+  .rk-tabs{display:flex;gap:6px}
+  .rk-tab{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:9px;
+    padding:5px 12px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit}
+  .rk-tab.on{background:var(--primary-strong,var(--primary,#334155));color:#fff;border-color:var(--primary,#334155)}
+  .rk-url{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:9px 12px;
+    font:600 .8rem/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;color:#1e293b;word-break:break-all}
+  a.rk-link{text-decoration:none;display:inline-flex;align-items:center}
+  .rk-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .rk-chip{background:color-mix(in srgb,var(--primary,#334155) 10%,#fff);color:color-mix(in srgb,var(--primary-strong,var(--primary,#334155)) 72%,#000);border:1px solid color-mix(in srgb,var(--primary,#334155) 22%,#fff);border-radius:999px;
+    padding:4px 10px;font-size:.75rem;font-weight:700}
+  .rk-desc{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;
+    font-size:.85rem;color:#0f172a;max-height:190px;overflow:auto;white-space:pre-wrap;line-height:1.5}
+  /* RK_MOTA_FULL — bộ field giống popup Description (nhãn + giới hạn + Copy). */
+  .rk-f{margin-top:14px}
+  .rk-fh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:5px}
+  .rk-fl{font-size:.72rem;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.04em}
+  .rk-flim{font-size:.7rem;font-weight:700;color:#64748b}
+  .rk-flim.over{color:#b91c1c}
+  .rk-fv{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:11px 13px;
+    font-size:.85rem;color:#0f172a;white-space:pre-wrap;line-height:1.55;word-break:break-word}
+  /* Long description dài nhất → cho cao hẳn, đỡ phải cuộn trong hộp (Sếp 2026-07-29). */
+  .rk-fv.tall{max-height:460px;overflow:auto}
+  .rk-fv.mono{font:600 .8rem/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;color:#334155;word-break:break-all}
+  /* Khối "nhắc bot gen": CHỈ admin (build PIN) — 3 endpoint gen đều gate BUILD_PIN. */
+  .rk-admin{display:none;margin-top:18px;border-top:1px dashed #e2e8f0;padding-top:10px}
+  body.aab-authed:not(.partner-authed) .rk-admin{display:block}
+  .rk-gap{display:flex;align-items:center;justify-content:space-between;gap:12px;
+    background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:9px 12px;margin-top:8px}
+  .rk-gap span{font-size:.84rem;font-weight:700;color:#92400e}
+  .rk-miss{background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;border-radius:12px;padding:10px 14px;
+    font-size:.84rem;font-weight:600;margin-top:12px}
+  .rk-warn{background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:12px;padding:10px 14px;
+    font-size:.84rem;font-weight:600;margin-top:12px}
+  .rk-meta{font-size:.78rem;color:#64748b;font-weight:600}
+  /* Theo CHUẨN HOÁ MODAL ACTIONS 2026-07-28 (giống #rnAct/#aablAct/#stAct):
+     nút chính đồng cỡ flex:1 1 0, nút Đóng cố định cỡ + order:9 xếp cuối.
+     Trước đây dùng margin-left:auto nên lệch chuẩn so với các popup khác. */
+  /* Hàng nút: kích thước theo nội dung, căn phải, Đóng đứng cuối.
+     Trước đây ép flex:1 1 0 nên với modal rộng ~700px mà chỉ có 1 nút chính thì
+     nút bị kéo dài hết hàng, nhìn rất kỳ (Sếp 2026-07-29). */
+  .rk-act{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
+  .rk-act button{flex:0 0 auto;min-width:132px;padding:12px 22px;border-radius:12px;font-weight:800;
+    font-size:.9rem;border:none;cursor:pointer;font-family:inherit;line-height:1.2}
+  .rk-rf{background:var(--primary-strong,var(--primary,#334155));color:#fff;display:none}
+  body.aab-authed:not(.partner-authed) .rk-rf{display:inline-flex}
+  .rk-rf:disabled{opacity:.55;cursor:progress}
+  .rk-act button.rk-cl{order:9;min-width:96px;background:#f1f5f9;color:#475569;border:1.5px solid #e2e8f0}
+  #rkSt{margin-top:12px;font-size:.85rem;font-weight:600;color:#64748b;min-height:18px}
+</style>
+<div id="rkOv"><div id="rkMd">
+  <h3 id="rkTitle">Gói phát hành</h3>
+  <p class="rk-sub" id="rkSub"></p>
+  <div id="rkBody"></div>
+  <div class="rk-act">
+    <button type="button" class="rk-rf" id="rkRf" title="Export lại ảnh từ Figma (dùng khi vừa sửa Figma)">Cập nhật từ Figma</button>
+    <button type="button" class="rk-cl" id="rkCl">Đóng</button>
+  </div>
+  <div id="rkSt"></div>
+</div></div>
+<script>/* RELEASE_KIT — popup preview trước, tải zip sau (Sếp chốt 2026-07-28) */
+(function(){
+  var API="https://aab.tranquilmind.co";
+  var ov=document.getElementById("rkOv"), md=document.getElementById("rkMd"),
+      body=document.getElementById("rkBody"), st=document.getElementById("rkSt"),
+      title=document.getElementById("rkTitle"), sub=document.getElementById("rkSub"),
+      rf=document.getElementById("rkRf"), cl=document.getElementById("rkCl");
+  var cur={id:"",name:"",data:null};
+
+  // Copy có fallback: navigator.clipboard chỉ chạy ở secure context + cần quyền;
+  // nếu bị từ chối thì dùng textarea + execCommand để không im lặng thất bại.
+  function copyText(t){
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      return navigator.clipboard.writeText(t).then(function(){return true;}).catch(function(){return legacyCopy(t);});
+    }
+    return Promise.resolve(legacyCopy(t));
+  }
+  function legacyCopy(t){
+    try{
+      var ta=document.createElement("textarea");
+      ta.value=t; ta.style.position="fixed"; ta.style.opacity="0";
+      document.body.appendChild(ta); ta.select();
+      var ok=document.execCommand("copy");
+      ta.remove(); return ok;
+    }catch(e){ return false; }
+  }
+
+  function esc(s){var d=document.createElement("div");d.textContent=s==null?"":String(s);return d.innerHTML;}
+  function mb(n){return (n/1048576).toFixed(1)+" MB";}
+  function close(){ov.classList.remove("open");st.textContent="";body.innerHTML="";}
+  cl.onclick=close;
+  ov.addEventListener("click",function(e){if(e.target===ov)close();});
+
+  // PIN: dùng lại PIN đã nhập lúc đăng nhập (lưu phiên), không bắt gõ lại.
+  function pin(){ return localStorage.getItem("aab_pin")||""; }
+
+  // Hàng tiêu đề mục: chữ trái, nút phải — gom nút cạnh title cho đỡ tốn chỗ
+  // (Sếp 2026-07-29), thay vì mỗi mục một hàng nút riêng bên dưới.
+  function secRow(title, btns, extraHtml){
+    var h='<div class="rk-sec-row"><div class="rk-sec">'+esc(title)+'</div><div class="rk-sec-btns">';
+    (btns||[]).forEach(function(b){
+      h+='<button type="button" class="rk-one" data-file="'+b.f+'">'+b.t+'</button>';
+    });
+    h+=(extraHtml||'')+'</div></div>';
+    return h;
+  }
+
+  /* RK_MOTA_FULL: icon lucide đúng bộ đang dùng ở nút card, thay cho emoji. */
+  function ic(n){ return '<i data-lucide="'+n+'"></i>'; }
+  function render(d){
+    /* RK_TABS (Sếp 2026-07-29): chia tab thay vì cuộn dài. Mỗi nhóm vào một pane;
+       tất cả pane nằm sẵn trong DOM (chỉ ẩn/hiện) nên handler nút gắn một lần
+       sau render là đủ, đổi tab không phải gắn lại. */
+    var P = { anh:"", listing:"", dsafe:"", mota:"", link:"" };
+
+    // ── Ảnh: icon + feature cùng hàng, rồi tới screenshot
+    if(d.icon||d.feature){
+      P.anh+='<div class="rk-top">';
+      if(d.icon){
+        P.anh+='<div class="rk-top-icon">'
+          +secRow('Icon', [{f:'icon512',t:ic('download')+'Tải icon 512×512'}])
+          +'<div class="rk-icons"><img src="'+esc(d.icon.url)+'"></div></div>';
+      }
+      if(d.feature){
+        P.anh+='<div class="rk-top-feat">'
+          +secRow('Feature graphic ('+d.feature.w+'×'+d.feature.h+')', [{f:'feature',t:ic('download')+'Tải'}])
+          +'<div class="rk-feat"><img loading="lazy" src="'+esc(d.feature.url)+'"></div></div>';
+      }
+      P.anh+='</div>';
+    }
+    if(d.screenshots&&d.screenshots.length){
+      P.anh+='<div class="rk-sec-row"><div class="rk-sec">Screenshot ('+d.screenshots.length+' ảnh '+d.screenshots[0].w+'×'+d.screenshots[0].h+')</div>'
+        +'<button type="button" class="rk-one" id="rkAllShots">'+ic('download')+'Tải '+d.screenshots.length+' ảnh</button></div><div class="rk-shots">';
+      d.screenshots.forEach(function(s){
+        P.anh+='<img loading="lazy" src="'+esc(s.url)+'" alt="'+esc(s.name)+'">';
+      });
+      P.anh+='</div>';
+    }
+
+    // ── Listing EN/VI (tách khỏi Data safety — Sếp 2026-07-29)
+    if(d.listing_en||d.listing_vi){
+      var hs=[];
+      if(d.listing_en) hs.push({f:'listing_en',t:ic('download')+'Listing EN'});
+      if(d.listing_vi) hs.push({f:'listing_vi',t:ic('download')+'Listing VI'});
+      var dtab='';
+      if(d.listing_en&&d.listing_en.text) dtab+='<button type="button" class="rk-tab on" data-doc="en">EN</button>';
+      if(d.listing_vi&&d.listing_vi.text) dtab+='<button type="button" class="rk-tab'+(d.listing_en&&d.listing_en.text?'':' on')+'" data-doc="vi">VI</button>';
+      P.listing+=secRow('Hồ sơ khai báo Play Console', hs, dtab?'<div class="rk-tabs">'+dtab+'</div>':'');
+      if((d.listing_en&&d.listing_en.text)||(d.listing_vi&&d.listing_vi.text)){
+        var first=(d.listing_en&&d.listing_en.text)?d.listing_en.text:d.listing_vi.text;
+        P.listing+='<div class="rk-doc" id="rkDoc">'+esc(first)+'</div>';
+      }
+    }
+
+    /* RK_DS_TAB: Data safety thành tab riêng và xem trước ĐỦ nội dung — trước đây
+       chỉ có mấy chip tên data-type, muốn biết khai gì phải tải CSV 175KB về mở
+       Excel. Bảng dùng chung window.__dsTable với popup Data Safety. */
+    if(d.data_safety){
+      var ds=d.data_safety;
+      P.dsafe+=secRow('Data safety'+(ds.rows?' — '+ds.rows.length+' data-type':''),
+        [{f:'data_safety',t:ic('download')+'Tải CSV để import'}]);
+      if(ds.rows&&ds.rows.length&&window.__dsTable){
+        P.dsafe+=window.__dsTable(ds);
+      }else if(ds.types&&ds.types.length){
+        P.dsafe+='<div class="rk-chips">';
+        ds.types.forEach(function(t){ P.dsafe+='<span class="rk-chip">'+esc(t)+'</span>'; });
+        P.dsafe+='</div>';
+      }
+      P.dsafe+='<div class="rk-warn">Import vào <b>Play Console → App content → Data safety → Import from a CSV file</b>. Xong Console còn hỏi <b>"Can users login with accounts created outside of the app?"</b> → tick <b>No</b>, rồi bấm tiếp và lưu lại.</div>';
+    }
+
+    /* RK_MOTA_FULL: tab Mô tả dựng đủ bộ field của popup Description (kèm giới
+       hạn ký tự Play) thay vì gộp 3 đoạn vào một hộp; Privacy/Terms chuyển về
+       đây vì chúng là nội dung khai listing, không phải file để tải. */
+    if(d.description){
+      var f=d.description;
+      var ô=function(nhan,gt,gioihan,kieu){
+        if(!gt) return '';
+        var len=String(gt).length;
+        var lim=gioihan?('<span class="rk-flim'+(len>gioihan?' over':'')+'">'+len+'/'+gioihan+'</span>'):'';
+        return '<div class="rk-f"><div class="rk-fh"><span class="rk-fl">'+esc(nhan)+'</span>'
+          +'<span style="display:flex;align-items:center;gap:8px">'+lim
+          +'<button type="button" class="rk-one" data-copy="'+esc(gt)+'">'+ic('clipboard')+'Copy</button></span></div>'
+          +'<div class="rk-fv'+(kieu?' '+kieu:'')+'">'+esc(gt)+'</div></div>';
+      };
+      P.mota+=secRow('Store description', [{f:'description',t:ic('download')+'Tải .txt'}]);
+      /* Sếp 2026-07-31: đối tác cần 2 trường đọc từ SOURCE (không phải hồ sơ
+         store) để tạo đúng bản ghi trên Play Console. Đặt lên ĐẦU vì đây là thứ
+         phải khớp trước khi bàn tới nội dung mô tả. */
+      P.mota+= ô('Tên hiển thị trên app', f.app_label)
+             + ô('Package name', f.package_id, 0, 'mono');
+      P.mota+= ô('Title', f.app_name, 50)
+             + ô('Short description', f.short, 80)
+             + ô('Long description', f.long, 4000, 'tall')
+             + ô('Release notes', f.release_notes, 500)
+             + ô('Category', f.category)
+             + ô('Content rating', f.content_rating)
+             + ô('Copyright', f.copyright)
+             + ô('Privacy URL', d.privacy_url, 0, 'mono')
+             + ô('Terms URL', d.terms_url, 0, 'mono');
+      if(d.privacy_url||d.terms_url){
+        P.mota+='<div class="rk-row">'
+          +(d.privacy_url?'<a class="rk-one rk-link" href="'+esc(d.privacy_url)+'" target="_blank" rel="noopener">'+ic('external-link')+'Mở Privacy</a>':'')
+          +(d.terms_url?'<a class="rk-one rk-link" href="'+esc(d.terms_url)+'" target="_blank" rel="noopener">'+ic('external-link')+'Mở Terms</a>':'')
+          +'</div>';
+      }
+    }
+
+    // ── AAB (Privacy/Terms đã chuyển sang tab Mô tả — Sếp 2026-07-29)
+    if(d.aab){
+      P.link+=secRow('AAB', [], '<a class="rk-one rk-link" href="'+esc(d.aab.url)+'">'+ic('download')+'Tải AAB</a>')
+        +'<div class="rk-url">'+esc(d.aab.name)+' — '+mb(d.aab.size)+'</div>';
+    }
+
+    // ── Dựng thanh tab + pane (bỏ tab rỗng)
+    var NHOM=[{k:'anh',ic:'image',t:'Ảnh'},{k:'listing',ic:'file-text',t:'Listing'},
+              {k:'dsafe',ic:'shield-check',t:'Data safety'},{k:'mota',ic:'align-left',t:'Mô tả'},
+              {k:'link',ic:'package',t:'AAB'}]
+      .filter(function(x){ return P[x.k]; });
+    var h='';
+    if(NHOM.length>1){
+      h+='<div class="rk-nav">'+NHOM.map(function(x,i){
+        return '<button type="button" class="rk-navb'+(i?'':' on')+'" data-pane="'+x.k+'">'+ic(x.ic)+x.t+'</button>';
+      }).join('')+'</div>';
+    }
+    h+=NHOM.map(function(x,i){
+      return '<div class="rk-pane'+(i?'':' on')+'" data-pane="'+x.k+'">'+P[x.k]+'</div>';
+    }).join('');
+
+    // Khối admin + cảnh báo thiếu: nằm NGOÀI tab để lúc nào cũng thấy.
+    var gaps=[];
+    /* Sếp 2026-08-07: tách 2 việc riêng. Gộp chung là sai — FameRing CÓ description
+       nhưng thiếu listing-en.md ⇒ cảnh báo luôn sáng, bấm nút thì bot chạy
+       /generate-store-description (chỉ gen 5 file description) rồi báo "đã xong",
+       hub vẫn kêu thiếu. Nay mỗi thứ một nút, gọi đúng workflow của nó. */
+    if(!d.description) gaps.push({ep:'gendesc',t:'Store description (app name / short / full)',ic:'📝'});
+    if(!d.listing_en)  gaps.push({ep:'genlisting',t:'Hồ sơ Play listing EN/VI (listing-en.md)',ic:'🗂️'});
+    if(!d.data_safety) gaps.push({ep:'gendatasafety',t:'Data safety CSV',ic:'🛡️'});
+    if(!d.privacy_url||!d.terms_url) gaps.push({ep:'genlegal',t:'Privacy Policy + Terms',ic:'⚖️'});
+    if(gaps.length||!(d.screenshots&&d.screenshots.length)){
+      h+='<div class="rk-admin"><div class="rk-sec">Thiếu dữ liệu — nhắc bot gen (chỉ admin)</div>';
+      gaps.forEach(function(g){
+        h+='<div class="rk-gap"><span>'+g.ic+' '+esc(g.t)+'</span>'
+          +'<button type="button" class="rk-one" data-gen="'+g.ep+'">🔔 Nhắc bot gen</button></div>';
+      });
+      if(!(d.screenshots&&d.screenshots.length)){
+        h+='<div class="rk-gap"><span>🖼️ Ảnh store (screenshot + feature)</span>'
+          +'<span class="rk-meta">Dùng nút "Cập nhật từ Figma" bên dưới</span></div>';
+      }
+      h+='</div>';
+    }
+    if(d.missing&&d.missing.length){
+      h+='<div class="rk-miss">Thiếu: '+d.missing.map(esc).join(" · ")+'</div>';
+    }
+    body.innerHTML=h;
+    /* RK_MOTA_FULL: lucide chỉ thay <i data-lucide> lúc được gọi → vẽ sau mỗi lần render. */
+    try{ window.lucide&&lucide.createIcons(); }catch(_){ }
+    // Đổi tab: chỉ bật/tắt pane, không dựng lại DOM.
+    body.querySelectorAll(".rk-navb").forEach(function(b){
+      b.onclick=function(){
+        body.querySelectorAll(".rk-navb").forEach(function(x){ x.classList.toggle("on", x===b); });
+        body.querySelectorAll(".rk-pane").forEach(function(pn){
+          pn.classList.toggle("on", pn.dataset.pane===b.dataset.pane);
+        });
+      };
+    });
+    // Gắn handler tải lẻ cho mọi nút vừa render.
+    body.querySelectorAll(".rk-one[data-file]").forEach(function(btn){
+      btn.onclick=function(){ grabOne(btn, btn.dataset.file, btn.dataset.i||""); };
+    });
+    body.querySelectorAll("[data-gen]").forEach(function(b){
+      b.onclick=async function(){
+        var old=b.innerHTML; b.disabled=true; b.textContent="Đang gửi…";
+        st.style.color="#64748b"; st.textContent="";
+        try{
+          var r=await fetch(API+"/api/"+b.dataset.gen,{
+            method:"POST",headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({app_id:cur.id,pin:pin()})});
+          var j=await r.json();
+          if(!r.ok||j.ok===false) throw new Error(j.error||("HTTP "+r.status));
+          b.textContent="✅ Đã nhắc bot";
+          st.textContent=j.message||"Đã gửi thông báo lên Discord + assign @Tranquil_Bot.";
+        }catch(e){
+          b.innerHTML=old; st.style.color="#b91c1c";
+          st.textContent="❌ "+e.message+(/PIN/i.test(e.message)?" (nút này cần build PIN admin)":"");
+        }finally{ b.disabled=false; }
+      };
+    });
+    body.querySelectorAll("[data-copy]").forEach(function(b){
+      b.onclick=function(){
+        var old=b.innerHTML;
+        copyText(b.dataset.copy).then(function(ok){
+          b.textContent = ok ? "✅ Đã copy" : "❌ Copy lỗi";
+          setTimeout(function(){ b.innerHTML=old; },1600);
+        });
+      };
+    });
+    body.querySelectorAll(".rk-tab[data-doc]").forEach(function(t){
+      t.onclick=function(){
+        body.querySelectorAll(".rk-tab[data-doc]").forEach(function(x){x.classList.remove("on");});
+        t.classList.add("on");
+        var doc=body.querySelector("#rkDoc");
+        var src=t.dataset.doc==="vi"?d.listing_vi:d.listing_en;
+        if(doc&&src&&src.text) doc.textContent=src.text;
+      };
+    });
+    var all=body.querySelector("#rkAllShots");
+    if(all) all.onclick=async function(){
+      var n=(d.screenshots||[]).length, old=all.innerHTML;
+      all.disabled=true;
+      for(var i=1;i<=n;i++){
+        all.textContent="⏳ "+i+"/"+n;
+        try{ await grabFile("screenshot", i); }catch(e){ /* lỗi từng ảnh đã báo ở st */ }
+      }
+      all.textContent="✅ Đã tải "+n+" ảnh";
+      setTimeout(function(){ all.innerHTML=old; all.disabled=false; },2000);
+    };
+    var when=d.exported_at?new Date(d.exported_at).toLocaleString("vi-VN"):"";
+    /* Partner KHÔNG được thấy tên công cụ nội bộ (Figma) — chỉ admin mới đọc
+       nguồn ảnh (Sếp 2026-08-07). */
+    var nguon=(d.role==="partner")?"Bộ ảnh store hiện có"
+             :(d.cached?"Ảnh lấy từ bản export sẵn":"Vừa export mới từ Figma");
+    sub.textContent=nguon+(when?" · "+when:"");
+  }
+
+  // Tải 1 file lẻ. Phải đi qua API (POST + PIN) chứ không dùng <a download>:
+  // icon 512 và description.txt được sinh phía server, còn link GitHub là
+  // cross-origin nên thuộc tính download bị trình duyệt bỏ qua.
+  // Tải 1 file về máy (dùng chung cho nút lẻ và nút "Tải N ảnh").
+  async function grabFile(file, i){
+    var q="?file="+encodeURIComponent(file)+(i?"&i="+encodeURIComponent(i):"");
+    var r=await fetch(API+"/api/releasekit"+q,{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({app_id:cur.id,pin:pin()})});
+    if(!r.ok){ var er=await r.json().catch(function(){return{};}); throw new Error(er.error||("HTTP "+r.status)); }
+    var cd=r.headers.get("content-disposition")||"", m=cd.match(/filename="([^"]+)"/);
+    var blob=await r.blob(), a=document.createElement("a");
+    a.href=URL.createObjectURL(blob); a.download=m?m[1]:(cur.id+"_"+file);
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){URL.revokeObjectURL(a.href);},4000);
+  }
+
+  async function grabOne(btn, file, i){
+    var old=btn.innerHTML;
+    btn.disabled=true; btn.textContent="Đang tải…";
+    st.style.color="#64748b"; st.textContent="";
+    try{
+      await grabFile(file, i);
+      btn.textContent="✅ Đã tải";
+      setTimeout(function(){btn.innerHTML=old;},1800);
+    }catch(e){ st.style.color="#b91c1c"; st.textContent="❌ "+e.message; btn.innerHTML=old; }
+    finally{ btn.disabled=false; }
+  }
+
+  async function load(refresh){
+    // Khoá nút tải khi chưa có dữ liệu — trước đây nút bật sẵn lúc đang tải nên
+    // bấm vào không biết đang tải cái gì (Sếp report 2026-07-28).
+    rf.disabled=true;
+    st.style.color="#64748b";
+    st.textContent=refresh?"Đang export ảnh từ Figma (có thể mất 30-60s)…":"Đang tải dữ liệu gói…";
+    body.innerHTML='<div class="rk-sec">Đang tải…</div>';
+    try{
+      var r=await fetch(API+"/api/releasekit"+(refresh?"?refresh=1":""),{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({app_id:cur.id,pin:pin()})});
+      var d=await r.json();
+      if(!r.ok||!d.ok) throw new Error(d.error||("HTTP "+r.status));
+      cur.data=d; render(d); st.textContent="";
+    }catch(e){ st.style.color="#b91c1c"; st.textContent="❌ "+e.message; body.innerHTML=""; }
+    finally{ rf.disabled=false; }
+  }
+
+  window.openReleaseKit=function(id,name){
+    cur.id=id; cur.name=name; cur.data=null;
+    title.textContent="Gói phát hành — "+name;
+    sub.textContent=""; st.style.color="#64748b";
+    ov.classList.add("open");
+    load(false);
+  };
+
+  rf.onclick=function(){
+    /* PIN_ONCE: xác nhận trước khi export lại — thao tác này gọi Figma (tốn hạn
+       mức) và ghi đè bộ ảnh đang dùng. */
+    if(!confirm("Export lại ảnh store từ Figma cho "+cur.id+"?\n\nSẽ ghi đè bộ ảnh hiện tại và tốn hạn mức Figma.")) return;
+    load(true);
+  };
+
 })();</script>
 </body>
 </html>
